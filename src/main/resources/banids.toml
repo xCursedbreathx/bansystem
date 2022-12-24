@@ -1,0 +1,15 @@
+#Please note the upper and lower case before the equal signs.
+[1]
+
+reason = "Example Reason"
+duration = 120000
+
+[2]
+
+reason = "Example Reason 2"
+duration = 120000
+
+[3]
+
+reason = "Example Reason 3"
+duration = 120000
