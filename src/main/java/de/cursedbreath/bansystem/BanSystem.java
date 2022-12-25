@@ -52,6 +52,10 @@ public class BanSystem {
         }
     }
 
+    /**
+     * This method is called when the plugin is enabled.
+     * @param event
+     */
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
 
@@ -81,30 +85,57 @@ public class BanSystem {
         registerEvents();
     }
 
+    /**
+     * Returns the Current Instance of the Plugin.
+     * @return BanSystem
+     */
     public static BanSystem getInstance() {
         return instance;
     }
+
+    /**
+     * Returns the Current Version of the Plugin.
+     * @return String
+     */
     private String getVersion() {
         return "1.0.1";
     }
 
+    /**
+     * Returns the current MySQLConnectionPool.
+     * @return MySQLConnectionPool
+     */
     public static MySQLConnectionPool getMySQLConnectionPool() {
         return mySQLConnectionPool;
     }
 
+    /**
+     * Returns the current VelocityConfig.
+     * @return VelocityConfig
+     */
     public static VelocityConfig getVelocityConfig() {
         return velocityConfig;
     }
 
+    /**
+     * Sets a new MySQLConnectionPool.
+     * @param mySQLConnectionPool
+     */
     public static void setMySQLConnectionPool(MySQLConnectionPool mySQLConnectionPool) {
         BanSystem.mySQLConnectionPool = mySQLConnectionPool;
     }
 
+    /**
+     * Registers all Commands.
+     */
     private void registerCommands() {
         commandManager.register(commandManager.metaBuilder("netban").build(), new CMD_ban(proxyServer, logger));
         commandManager.register(commandManager.metaBuilder("netunban").build(), new CMD_unban(proxyServer, logger));
     }
 
+    /**
+     * Registers all Events.
+     */
     private void registerEvents() {
         eventManager.register(this, new ConnectionListener(proxyServer, logger));
     }

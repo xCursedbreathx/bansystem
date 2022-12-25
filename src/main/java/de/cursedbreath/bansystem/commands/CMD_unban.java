@@ -30,9 +30,15 @@ public class CMD_unban implements SimpleCommand {
         }
         String playername = invocation.arguments()[0];
 
+        /**
+         * Unban Player
+         */
         if(invocation.source() instanceof Player player) {
             String unbannedby = player.getUsername();
             UUID uuid = MySQLStandardFunctions.getUUID(playername);
+            /**
+             * Check if Player is Banned.
+             */
             if(MySQLStandardFunctions.checkBAN(uuid.toString())) {
                 MySQLStandardFunctions.deleteBAN(uuid.toString());
                 notifyADMINS(GlobalVariables.PREFIX + "User " + playername + " was unbanned by " + unbannedby);
@@ -54,6 +60,10 @@ public class CMD_unban implements SimpleCommand {
         return invocation.source().hasPermission("bansystem.unban");
     }
 
+    /**
+     * Notify all Admins
+     * @param message
+     */
     private void notifyADMINS(String message) {
         proxyServer.getAllPlayers()
                 .stream()

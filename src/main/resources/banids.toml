@@ -1,15 +1,44 @@
 #Please note the upper and lower case before the equal signs.
 [1]
-
-reason = "Example Reason"
-duration = 120000
+reason = "Unerlaubte Clientmodification/Hackclient"
+duration = 2592000000
 
 [2]
-
-reason = "Example Reason 2"
-duration = 120000
+reason = "Reportmissbrauch"
+duration = 864000000
 
 [3]
+reason = "Unangebrachter Skin/Name"
+duration = 2592000000
 
-reason = "Example Reason 3"
-duration = 120000
+[4]
+reason = "Crossteaming"
+duration = 864000000
+
+[5]
+reason = "Bugusing"
+duration = 864000000
+
+[6]
+reason = "Chat Verhalten"
+duration = 86400000
+
+[7]
+reason = "Werbung"
+duration = 604800000
+
+[8]
+reason = "Alt-Account"
+duration = 0
+
+[9]
+reason = "Bannumgehung"
+duration = 0
+
+[10]
+reason = "Sicherheitsbann"
+duration = 0
+
+[99]
+reason = "EXTREM"
+duration = 0

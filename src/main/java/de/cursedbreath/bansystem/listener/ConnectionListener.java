@@ -20,11 +20,20 @@ public class ConnectionListener {
 
     private final Logger logger;
 
+    /**
+     * Constructor for ConnectionListener
+     * @param proxyServer
+     * @param logger
+     */
     public ConnectionListener(ProxyServer proxyServer, Logger logger) {
         this.proxyServer = proxyServer;
         this.logger = logger;
     }
 
+    /**
+     * Event for PostLoginEvent
+     * @param event
+     */
     @Subscribe
     public void onPlayerConnect(PostLoginEvent event) {
         proxyServer.getScheduler().buildTask(BanSystem.getInstance(), () -> {

@@ -118,6 +118,10 @@ public class CMD_ban implements SimpleCommand {
         return invocation.source().hasPermission("bansystem.ban");
     }
 
+    /**
+     *
+     * @param message
+     */
     private void notifyADMINS(String message) {
         proxyServer.getAllPlayers()
                 .stream()

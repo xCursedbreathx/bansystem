@@ -9,6 +9,12 @@ import java.util.UUID;
 
 public class MySQLStandardFunctions {
 
+    /**
+     * Checks if the Player exists in the Database.
+     * @param uuid
+     * @return
+     * @throws SQLException
+     */
     public static boolean playerExists(String uuid) throws SQLException {
 
         Connection conn = null;
@@ -31,6 +37,12 @@ public class MySQLStandardFunctions {
         return false;
     }
 
+    /**
+     * Inserting a new Player into player_data table
+     * @param uuid
+     * @param name
+     * @throws SQLException
+     */
     public static void insertPLAYER(String uuid, String name) throws SQLException {
 
         Connection conn = null;
@@ -49,6 +61,12 @@ public class MySQLStandardFunctions {
         }
     }
 
+    /**
+     * Updates the playername in the database
+     * @param name
+     * @param uuid
+     * @throws SQLException
+     */
     public static void updatePLAYERNAME(String name, String uuid) throws SQLException {
         Connection conn = null;
         try {
@@ -66,6 +84,11 @@ public class MySQLStandardFunctions {
         }
     }
 
+    /**
+     * Gets the Player UUID for the give Playername
+     * @param name
+     * @return
+     */
     public static UUID getUUID(String name) {
         Connection conn = null;
         try {
@@ -82,6 +105,11 @@ public class MySQLStandardFunctions {
         }
     }
 
+    /**
+     * Gets the name of a Player from the Database.
+     * @param uuid
+     * @return
+     */
     public static String getNAME(String uuid) {
         Connection conn = null;
         try {
@@ -98,6 +126,14 @@ public class MySQLStandardFunctions {
         }
     }
 
+    /**
+     * Adds a new Ban into the Database
+     * @param uuid
+     * @param playername
+     * @param reason
+     * @param bannedby
+     * @param duration
+     */
     public static void insertBAN(String uuid, String playername, String reason, String bannedby, Long duration) {
         Connection conn = null;
         try {
@@ -114,6 +150,10 @@ public class MySQLStandardFunctions {
         }
     }
 
+    /**
+     * Deletes the ban with given UUID
+     * @param uuid
+     */
     public static void deleteBAN(String uuid) {
         Connection conn = null;
         try {
@@ -126,6 +166,11 @@ public class MySQLStandardFunctions {
         }
     }
 
+    /**
+     * Checks if uuid is Banned.
+     * @param uuid
+     * @return boolean
+     */
     public static boolean checkBAN(String uuid) {
         Connection conn = null;
         try {
@@ -142,6 +187,11 @@ public class MySQLStandardFunctions {
         }
     }
 
+    /**
+     * Gets the Informations for the Banned Screen
+     * @param uuid
+     * @return
+     */
     public static ResultSet getBAN(String uuid) {
         Connection conn = null;
         try {
@@ -158,6 +208,10 @@ public class MySQLStandardFunctions {
         }
     }
 
+    /**
+     * Executes a SQL Script from a File
+     * @param inputStream
+     */
     public static void executeScript(InputStream inputStream) {
         if (inputStream == null) {
             throw new NullPointerException("InputStream for script is null!");
