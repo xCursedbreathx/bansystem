@@ -3,6 +3,7 @@ package de.cursedbreath.bansystem.commands;
 import com.velocitypowered.api.command.SimpleCommand;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
+import de.cursedbreath.bansystem.BanSystem;
 import de.cursedbreath.bansystem.utils.GlobalVariables;
 import de.cursedbreath.bansystem.utils.mysql.MySQLStandardFunctions;
 import net.kyori.adventure.text.Component;
@@ -24,35 +25,37 @@ public class CMD_unban implements SimpleCommand {
 
     @Override
     public void execute(Invocation invocation) {
-        if(invocation.arguments().length != 1) {
-            invocation.source().sendMessage(Component.text(GlobalVariables.PREFIX + "§cUsage: /unban <player>", NamedTextColor.RED));
-            return;
-        }
-        String playername = invocation.arguments()[0];
+        proxyServer.getScheduler().buildTask(BanSystem.getInstance(), ()->{
+            if(invocation.arguments().length != 1) {
+                invocation.source().sendMessage(Component.text(GlobalVariables.PREFIX + "§cUsage: /unban <player>", NamedTextColor.RED));
+                return;
+            }
+            String playername = invocation.arguments()[0];
 
-        /**
-         * Unban Player
-         */
-        if(invocation.source() instanceof Player player) {
-            String unbannedby = player.getUsername();
-            UUID uuid = MySQLStandardFunctions.getUUID(playername);
             /**
-             * Check if Player is Banned.
+             * Unban Player
              */
-            if(MySQLStandardFunctions.checkBAN(uuid.toString())) {
-                MySQLStandardFunctions.deleteBAN(uuid.toString());
-                notifyADMINS(GlobalVariables.PREFIX + "User " + playername + " was unbanned by " + unbannedby);
+            if(invocation.source() instanceof Player player) {
+                String unbannedby = player.getUsername();
+                UUID uuid = MySQLStandardFunctions.getUUID(playername);
+                /**
+                 * Check if Player is Banned.
+                 */
+                if(MySQLStandardFunctions.checkBAN(uuid.toString())) {
+                    MySQLStandardFunctions.deleteBAN(uuid.toString());
+                    notifyADMINS(GlobalVariables.PREFIX + "User " + playername + " was unbanned by " + unbannedby);
+                }
             }
-        }
-        else
-        {
-            String unbannedby = "CONSOLE";
-            UUID uuid = MySQLStandardFunctions.getUUID(playername);
-            if(MySQLStandardFunctions.checkBAN(uuid.toString())) {
-                MySQLStandardFunctions.deleteBAN(uuid.toString());
-                notifyADMINS(GlobalVariables.PREFIX + "User " + playername + " was unbanned by " + unbannedby);
+            else
+            {
+                String unbannedby = "CONSOLE";
+                UUID uuid = MySQLStandardFunctions.getUUID(playername);
+                if(MySQLStandardFunctions.checkBAN(uuid.toString())) {
+                    MySQLStandardFunctions.deleteBAN(uuid.toString());
+                    notifyADMINS(GlobalVariables.PREFIX + "User " + playername + " was unbanned by " + unbannedby);
+                }
             }
-        }
+        }).schedule();
     }
 
     @Override

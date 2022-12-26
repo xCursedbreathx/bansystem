@@ -1,6 +1,10 @@
 package de.cursedbreath.bansystem.utils.mysql;
 
+import com.velocitypowered.api.proxy.Player;
 import de.cursedbreath.bansystem.BanSystem;
+import de.cursedbreath.bansystem.utils.GlobalVariables;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 
 import java.io.InputStream;
 import java.sql.*;
@@ -145,6 +149,46 @@ public class MySQLStandardFunctions {
             preparedStatement.setString(4, bannedby);
             preparedStatement.setLong(5, duration);
             preparedStatement.executeUpdate();
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void insertHistory(String uuid, String playername, String reason, String bannedby, Long duration) {
+        Connection conn = null;
+        try {
+            conn = BanSystem.getMySQLConnectionPool().getConnection();
+            PreparedStatement preparedStatement = conn.prepareStatement("INSERT INTO ban_history (uuid, playername, reason, bannedby, bannedat, banneduntil) VALUES ( ?, ?, ?, ?, ?, ?)");
+            preparedStatement.setString(1, uuid);
+            preparedStatement.setString(2, playername);
+            preparedStatement.setString(3, reason);
+            preparedStatement.setString(4, bannedby);
+            preparedStatement.setLong(5, System.currentTimeMillis());
+            preparedStatement.setLong(6, duration);
+            preparedStatement.executeUpdate();
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void getHistory(Player player, String uuid) {
+        Connection conn = null;
+        try {
+            conn = BanSystem.getMySQLConnectionPool().getConnection();
+            PreparedStatement preparedStatement = conn.prepareStatement("SELECT * FROM ban_history WHERE uuid = ?");
+            preparedStatement.setString(1, uuid);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            player.sendMessage(Component.text("§c§lBAN-HISTORY"));
+            player.sendMessage(Component.text("--------------------", NamedTextColor.GRAY));
+            while (resultSet.next()) {
+                player.sendMessage(Component.text(" ", NamedTextColor.GRAY));
+                player.sendMessage(Component.text("Reason: " + resultSet.getString("reason"), NamedTextColor.AQUA));
+                player.sendMessage(Component.text("Banned by: " + resultSet.getString("bannedby"), NamedTextColor.AQUA));
+                player.sendMessage(Component.text("Banned at: " + GlobalVariables.convertTime(resultSet.getLong("bannedat")), NamedTextColor.AQUA));
+                player.sendMessage(Component.text("Banned until: " + GlobalVariables.convertTime(resultSet.getLong("banneduntil")), NamedTextColor.AQUA));
+                player.sendMessage(Component.text(" ", NamedTextColor.GRAY));
+            }
+            player.sendMessage(Component.text("--------------------", NamedTextColor.GRAY));
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }

@@ -28,83 +28,92 @@ public class CMD_ban implements SimpleCommand {
 
     @Override
     public void execute(Invocation invocation) {
-        if(invocation.arguments().length != 2) {
-            invocation.source().sendMessage(Component.text(GlobalVariables.PREFIX + "§cUsage: /ban <player> <reasonid>", NamedTextColor.RED));
-            return;
-        }
-
-        String playername = invocation.arguments()[0];
-        String reasonid = invocation.arguments()[1];
-
-        if(proxyServer.getPlayer(playername).isEmpty()) {
-            invocation.source().sendMessage(Component.text(GlobalVariables.PREFIX + "§cPlayer not found!", NamedTextColor.RED));
-            return;
-        }
-
-        if(!BanSystem.getVelocityConfig().isID(reasonid)) {
-            invocation.source().sendMessage(Component.text(GlobalVariables.PREFIX + "§cReasonID not found!", NamedTextColor.RED));
-            return;
-        }
-
-        if(invocation.source() instanceof Player player) {
-
-            Player target = proxyServer.getPlayer(playername).get();
-
-            if(target.hasPermission("bansystem.bypass")) {
-                invocation.source().sendMessage(Component.text(GlobalVariables.PREFIX + "§cYou can't ban this player!", NamedTextColor.RED));
+        proxyServer.getScheduler().buildTask(BanSystem.getInstance(), ()->{
+            if(invocation.arguments().length != 2) {
+                invocation.source().sendMessage(Component.text(GlobalVariables.PREFIX + "§cUsage: /ban <player> <reasonid>", NamedTextColor.RED));
                 return;
             }
 
-            String reason = BanSystem.getVelocityConfig().getReason(reasonid);
-            long time;
-            if(BanSystem.getVelocityConfig().getDuration(reasonid) == 0) {
-                time = 0;
-            }
-            else
-            {
-                time = System.currentTimeMillis() + BanSystem.getVelocityConfig().getDuration(reasonid);
-            }
-            String bannedby = player.getUsername();
+            String playername = invocation.arguments()[0];
+            String reasonid = invocation.arguments()[1];
 
-            MySQLStandardFunctions.insertBAN(target.getUniqueId().toString(), target.getUsername(), reason, bannedby, time);
-
-            notifyADMINS(GlobalVariables.PREFIX + "User " + playername + " was banned by " + bannedby + " for " + reason);
-
-            String Message = "§cYou are banned from this Server!\n\n§7Reason: §c" + reason + "\n§7Banned by: §c" + bannedby + "\n§7Banned until: §c" + GlobalVariables.convertTime(time);
-
-            target.disconnect(Component.text(Message));
-        }
-        else
-        {
-
-            Player target = proxyServer.getPlayer(playername).get();
-
-            if(target.hasPermission("bansystem.bypass")) {
-                invocation.source().sendMessage(Component.text(GlobalVariables.PREFIX + "§cYou can't ban this player!", NamedTextColor.RED));
+            if(proxyServer.getPlayer(playername).isEmpty()) {
+                invocation.source().sendMessage(Component.text(GlobalVariables.PREFIX + "§cPlayer not found!", NamedTextColor.RED));
                 return;
             }
 
-            String reason = BanSystem.getVelocityConfig().getReason(reasonid);
-            long time;
-            if(BanSystem.getVelocityConfig().getDuration(reasonid) == 0) {
-                time = 0;
+            if(!BanSystem.getVelocityConfig().isID(reasonid)) {
+                invocation.source().sendMessage(Component.text(GlobalVariables.PREFIX + "§cReasonID not found!", NamedTextColor.RED));
+                return;
+            }
+
+            if(invocation.source() instanceof Player player) {
+
+                Player target = proxyServer.getPlayer(playername).get();
+
+                if(target.hasPermission("bansystem.bypass")) {
+                    invocation.source().sendMessage(Component.text(GlobalVariables.PREFIX + "§cYou can't ban this player!", NamedTextColor.RED));
+                    return;
+                }
+
+                String reason = BanSystem.getVelocityConfig().getReason(reasonid);
+                long time;
+                if(BanSystem.getVelocityConfig().getDuration(reasonid) == 0) {
+                    time = 0;
+                }
+                else
+                {
+                    time = System.currentTimeMillis() + BanSystem.getVelocityConfig().getDuration(reasonid);
+                }
+                String bannedby = player.getUsername();
+
+                MySQLStandardFunctions.insertBAN(target.getUniqueId().toString(), target.getUsername(), reason, bannedby, time);
+                MySQLStandardFunctions.insertHistory(target.getUniqueId().toString(), target.getUsername(), reason, bannedby, time);
+
+                notifyADMINS(GlobalVariables.PREFIX + "User " + playername + " was banned by " + bannedby + " for " + reason);
+
+                String Message = "§cYou are banned from this Server!\n\n§7Reason: §c" + reason + "\n§7Banned by: §c" + bannedby + "\n§7Banned until: §c" + GlobalVariables.convertTime(time);
+
+                target.disconnect(Component.text(Message));
             }
             else
             {
-                time = System.currentTimeMillis() + BanSystem.getVelocityConfig().getDuration(reasonid);
+
+                Player target = proxyServer.getPlayer(playername).get();
+
+                if(target.hasPermission("bansystem.bypass")) {
+                    invocation.source().sendMessage(Component.text(GlobalVariables.PREFIX + "§cYou can't ban this player!", NamedTextColor.RED));
+                    return;
+                }
+
+                String reason = BanSystem.getVelocityConfig().getReason(reasonid);
+                long time;
+                if(BanSystem.getVelocityConfig().getDuration(reasonid) == 0) {
+                    time = 0;
+                }
+                else
+                {
+                    time = System.currentTimeMillis() + BanSystem.getVelocityConfig().getDuration(reasonid);
+                }
+                String bannedby = "CONSOLE";
+
+                MySQLStandardFunctions.insertBAN(target.getUniqueId().toString(), target.getUsername(), reason, bannedby, time);
+                MySQLStandardFunctions.insertHistory(target.getUniqueId().toString(), target.getUsername(), reason, bannedby, time);
+
+                notifyADMINS(GlobalVariables.PREFIX + "User " + playername + " was banned by " + bannedby + " for " + reason);
+
+                String Message = "§cYou are banned from this Server!\n\n§7Reason: §c" + reason + "\n§7Banned by: §c" + bannedby + "\n§7Banned until: §c" + GlobalVariables.convertTime(time);
+
+                target.disconnect(Component.text(Message));
             }
-            String bannedby = "CONSOLE";
-
-            MySQLStandardFunctions.insertBAN(target.getUniqueId().toString(), target.getUsername(), reason, bannedby, time);
-
-            notifyADMINS(GlobalVariables.PREFIX + "User " + playername + " was banned by " + bannedby + " for " + reason);
-
-            String Message = "§cYou are banned from this Server!\n\n§7Reason: §c" + reason + "\n§7Banned by: §c" + bannedby + "\n§7Banned until: §c" + GlobalVariables.convertTime(time);
-
-            target.disconnect(Component.text(Message));
-        }
+        }).schedule();
     }
 
+    /**
+     * Suggests Online Players for the Tab-Completion
+     * @param invocation the invocation context
+     * @return
+     */
     @Override
     public List<String> suggest(Invocation invocation) {
         if(invocation.arguments().length == 1) {
@@ -119,7 +128,7 @@ public class CMD_ban implements SimpleCommand {
     }
 
     /**
-     *
+     * Notifies all online admins about a ban
      * @param message
      */
     private void notifyADMINS(String message) {

@@ -29,6 +29,20 @@ CREATE TABLE IF NOT EXISTS `active_bans` (
 
 -- Daten Export vom Benutzer nicht ausgewählt
 
+-- Exportiere Struktur von Tabelle bansystem.ban_history
+CREATE TABLE IF NOT EXISTS `ban_history` (
+  `banhistoryid` int(11) NOT NULL AUTO_INCREMENT,
+  `uuid` varchar(40) NOT NULL,
+  `playername` varchar(25) NOT NULL,
+  `reason` varchar(255) NOT NULL,
+  `bannedby` varchar(25) NOT NULL,
+  `bannedat` bigint(20) NOT NULL,
+  `banneduntil` bigint(20) NOT NULL,
+  PRIMARY KEY (`banhistoryid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+
+-- Daten Export vom Benutzer nicht ausgewählt
+
 -- Exportiere Struktur von Tabelle bansystem.player_data
 CREATE TABLE IF NOT EXISTS `player_data` (
   `uuid` varchar(40) NOT NULL,
