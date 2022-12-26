@@ -21,7 +21,7 @@ import java.io.IOException;
 @Plugin(
         id = "bansystem",
         name = "Bansystem",
-        version = "1.0.1",
+        version = "1.0.2",
         description = "A Simple ID Ban System",
         authors = {"Cursedbreath"}
 )
@@ -99,7 +99,7 @@ public class BanSystem {
      * @return String
      */
     private String getVersion() {
-        return "1.0.1";
+        return "1.0.2";
     }
 
     /**
