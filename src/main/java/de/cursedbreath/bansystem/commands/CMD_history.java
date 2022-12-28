@@ -9,6 +9,7 @@ import de.cursedbreath.bansystem.utils.mysql.MySQLStandardFunctions;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 
+import java.sql.SQLException;
 import java.util.UUID;
 
 public class CMD_history implements SimpleCommand {
@@ -27,17 +28,21 @@ public class CMD_history implements SimpleCommand {
                 return;
             }
             String playername = invocation.arguments()[0];
-            UUID uuid = MySQLStandardFunctions.getUUID(playername);
-            if(uuid == null) {
-                invocation.source().sendMessage(Component.text(GlobalVariables.PREFIX + "§cPlayer not found!", NamedTextColor.RED));
-                return;
-            }
-            if(invocation.source() instanceof Player player) {
-                MySQLStandardFunctions.getHistory(player, uuid.toString());
-            }
-            else
-            {
-                invocation.source().sendMessage(Component.text(GlobalVariables.PREFIX + "§7History is Currently only visible by Players!", NamedTextColor.RED));
+            try {
+                UUID uuid = MySQLStandardFunctions.getUUID(playername);
+                if(uuid == null) {
+                    invocation.source().sendMessage(Component.text(GlobalVariables.PREFIX + "§cPlayer not found!", NamedTextColor.RED));
+                    return;
+                }
+                if(invocation.source() instanceof Player player) {
+                    MySQLStandardFunctions.getHistory(player, uuid.toString());
+                }
+                else
+                {
+                    invocation.source().sendMessage(Component.text(GlobalVariables.PREFIX + "§7History is Currently only visible by Players!", NamedTextColor.RED));
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
             }
         }).schedule();
     }

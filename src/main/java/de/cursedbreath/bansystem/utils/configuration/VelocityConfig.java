@@ -20,6 +20,8 @@ public class VelocityConfig {
     static File configPath = new File("plugins/bansystem/");
     static File banidfile = new File("plugins/bansystem/banids.toml");
 
+    static File messagefile = new File("plugins/bansystem/messages.toml");
+
     static File configfile = new File("plugins/bansystem/config.toml");
 
 
@@ -46,6 +48,15 @@ public class VelocityConfig {
             InputStream stream = BanSystem.getInstance().getClass().getResourceAsStream("/banids.toml");
             try {
                 Files.copy(stream, banidfile.toPath());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        if(!messagefile.exists()) {
+            InputStream stream = BanSystem.getInstance().getClass().getResourceAsStream("/messages.toml");
+            try {
+                Files.copy(stream, messagefile.toPath());
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -83,6 +94,11 @@ public class VelocityConfig {
     public Long getDuration(String id) {
         Toml reader = new Toml().read(banidfile);
         return reader.getLong(id+".duration");
+    }
+
+    public String getMessage(String key) {
+        Toml reader = new Toml().read(messagefile);
+        return reader.getString("Messages."+key).replaceAll("&", "§");
     }
 
 }

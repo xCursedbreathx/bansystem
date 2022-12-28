@@ -53,14 +53,18 @@ public class ConnectionListener {
                                 return;
                             }
                             if(time == 0) {
-                                String Message = "§cYou are banned from this Server!\n\n§7Reason: §c" + reason + "\n§7Banned by: §c" + bannedby + "\n§7Banned until: §c" + "PERMANENT";
 
-                                player.disconnect(Component.text(Message));
+                                player.disconnect(Component.text(BanSystem.getVelocityConfig().getMessage("bannedscreen")
+                                        .replaceAll("%reason%", reason)
+                                        .replaceAll("%by%", bannedby)
+                                        .replaceAll("%time%", GlobalVariables.convertTime(time))));
                             }
                             if(System.currentTimeMillis() < time) {
-                                String Message = "§cYou are banned from this Server!\n\n§7Reason: §c" + reason + "\n§7Banned by: §c" + bannedby + "\n§7Banned until: §c" + GlobalVariables.convertTime(time);
 
-                                player.disconnect(Component.text(Message));
+                                player.disconnect(Component.text(BanSystem.getVelocityConfig().getMessage("bannedscreen")
+                                        .replaceAll("%reason%", reason)
+                                        .replaceAll("%by%", bannedby)
+                                        .replaceAll("%time%", GlobalVariables.convertTime(time))));
                             }
                             else
                             {
@@ -78,9 +82,11 @@ public class ConnectionListener {
                                 return;
                             }
                             if(System.currentTimeMillis() < time) {
-                                String Message = "§cYou are banned from this Server!\n\n§7Reason: §c" + reason + "\n§7Banned by: §c" + bannedby + "\n§7Banned until: §c" + GlobalVariables.convertTime(time);
 
-                                player.disconnect(Component.text(Message));
+                                player.disconnect(Component.text(BanSystem.getVelocityConfig().getMessage("bannedscreen")
+                                        .replaceAll("%reason%", reason)
+                                        .replaceAll("%by%", bannedby)
+                                        .replaceAll("%time%", GlobalVariables.convertTime(time))));
                             }
                             else
                             {

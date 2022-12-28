@@ -10,6 +10,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.slf4j.Logger;
 
+import java.sql.SQLException;
 import java.util.UUID;
 
 public class CMD_unban implements SimpleCommand {
@@ -37,22 +38,41 @@ public class CMD_unban implements SimpleCommand {
              */
             if(invocation.source() instanceof Player player) {
                 String unbannedby = player.getUsername();
-                UUID uuid = MySQLStandardFunctions.getUUID(playername);
-                /**
-                 * Check if Player is Banned.
-                 */
-                if(MySQLStandardFunctions.checkBAN(uuid.toString())) {
-                    MySQLStandardFunctions.deleteBAN(uuid.toString());
-                    notifyADMINS(GlobalVariables.PREFIX + "User " + playername + " was unbanned by " + unbannedby);
+
+
+                try {
+                    UUID uuid = MySQLStandardFunctions.getUUID(playername);
+                    if(uuid == null) {
+                        invocation.source().sendMessage(Component.text(GlobalVariables.PREFIX + "§cPlayer not found!", NamedTextColor.RED));
+                        return;
+                    }
+                    if(MySQLStandardFunctions.checkBAN(uuid.toString())) {
+                        MySQLStandardFunctions.deleteBAN(uuid.toString());
+                        notifyADMINS(GlobalVariables.PREFIX + BanSystem.getVelocityConfig().getMessage("unbannotify")
+                                .replaceAll("%player%", playername)
+                                .replaceAll("%by%", unbannedby));
+                    }
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
                 }
             }
             else
             {
                 String unbannedby = "CONSOLE";
-                UUID uuid = MySQLStandardFunctions.getUUID(playername);
-                if(MySQLStandardFunctions.checkBAN(uuid.toString())) {
-                    MySQLStandardFunctions.deleteBAN(uuid.toString());
-                    notifyADMINS(GlobalVariables.PREFIX + "User " + playername + " was unbanned by " + unbannedby);
+                try {
+                    UUID uuid = MySQLStandardFunctions.getUUID(playername);
+                    if(uuid == null) {
+                        invocation.source().sendMessage(Component.text(GlobalVariables.PREFIX + "§cPlayer not found!", NamedTextColor.RED));
+                        return;
+                    }
+                    if(MySQLStandardFunctions.checkBAN(uuid.toString())) {
+                        MySQLStandardFunctions.deleteBAN(uuid.toString());
+                        notifyADMINS(GlobalVariables.PREFIX + BanSystem.getVelocityConfig().getMessage("unbannotify")
+                                .replaceAll("%player%", playername)
+                                .replaceAll("%by%", unbannedby));
+                    }
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
                 }
             }
         }).schedule();

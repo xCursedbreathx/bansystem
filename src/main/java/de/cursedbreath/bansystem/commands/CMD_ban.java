@@ -10,6 +10,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.slf4j.Logger;
 
+import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -47,12 +48,18 @@ public class CMD_ban implements SimpleCommand {
                 return;
             }
 
+            if(!invocation.source().hasPermission("bansystem."+reasonid)){
+                invocation.source().sendMessage(Component.text(GlobalVariables.PREFIX + BanSystem.getVelocityConfig().getMessage("notenounghpermissions")));
+                return;
+            }
+
             if(invocation.source() instanceof Player player) {
 
                 Player target = proxyServer.getPlayer(playername).get();
 
                 if(target.hasPermission("bansystem.bypass")) {
-                    invocation.source().sendMessage(Component.text(GlobalVariables.PREFIX + "§cYou can't ban this player!", NamedTextColor.RED));
+                    invocation.source().sendMessage(Component.text(GlobalVariables.PREFIX + BanSystem.getVelocityConfig().getMessage("banbypass")
+                            .replaceAll("%player%", playername)));
                     return;
                 }
 
@@ -67,14 +74,23 @@ public class CMD_ban implements SimpleCommand {
                 }
                 String bannedby = player.getUsername();
 
-                MySQLStandardFunctions.insertBAN(target.getUniqueId().toString(), target.getUsername(), reason, bannedby, time);
-                MySQLStandardFunctions.insertHistory(target.getUniqueId().toString(), target.getUsername(), reason, bannedby, time);
+                try {
+                    MySQLStandardFunctions.insertBAN(target.getUniqueId().toString(), target.getUsername(), reason, bannedby, time);
+                    MySQLStandardFunctions.insertHistory(target.getUniqueId().toString(), target.getUsername(), reason, bannedby, time);
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
 
-                notifyADMINS(GlobalVariables.PREFIX + "User " + playername + " was banned by " + bannedby + " for " + reason);
+                notifyADMINS(GlobalVariables.PREFIX + BanSystem.getVelocityConfig().getMessage("bannotify")
+                        .replaceAll("%player%", playername)
+                        .replaceAll("%by%", bannedby)
+                        .replaceAll("%reason%", reason)
+                        .replaceAll("%time%", GlobalVariables.convertTime(time)));
 
-                String Message = "§cYou are banned from this Server!\n\n§7Reason: §c" + reason + "\n§7Banned by: §c" + bannedby + "\n§7Banned until: §c" + GlobalVariables.convertTime(time);
-
-                target.disconnect(Component.text(Message));
+                target.disconnect(Component.text(BanSystem.getVelocityConfig().getMessage("bannedscreen")
+                        .replaceAll("%reason%", reason)
+                        .replaceAll("%by%", bannedby)
+                        .replaceAll("%time%", GlobalVariables.convertTime(time))));
             }
             else
             {
@@ -97,14 +113,23 @@ public class CMD_ban implements SimpleCommand {
                 }
                 String bannedby = "CONSOLE";
 
-                MySQLStandardFunctions.insertBAN(target.getUniqueId().toString(), target.getUsername(), reason, bannedby, time);
-                MySQLStandardFunctions.insertHistory(target.getUniqueId().toString(), target.getUsername(), reason, bannedby, time);
+                try {
+                    MySQLStandardFunctions.insertBAN(target.getUniqueId().toString(), target.getUsername(), reason, bannedby, time);
+                    MySQLStandardFunctions.insertHistory(target.getUniqueId().toString(), target.getUsername(), reason, bannedby, time);
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
 
-                notifyADMINS(GlobalVariables.PREFIX + "User " + playername + " was banned by " + bannedby + " for " + reason);
+                notifyADMINS(GlobalVariables.PREFIX + BanSystem.getVelocityConfig().getMessage("bannotify")
+                        .replaceAll("%player%", playername)
+                        .replaceAll("%by%", bannedby)
+                        .replaceAll("%reason%", reason)
+                        .replaceAll("%time%", GlobalVariables.convertTime(time)));
 
-                String Message = "§cYou are banned from this Server!\n\n§7Reason: §c" + reason + "\n§7Banned by: §c" + bannedby + "\n§7Banned until: §c" + GlobalVariables.convertTime(time);
-
-                target.disconnect(Component.text(Message));
+                target.disconnect(Component.text(BanSystem.getVelocityConfig().getMessage("bannedscreen")
+                        .replaceAll("%reason%", reason)
+                        .replaceAll("%by%", bannedby)
+                        .replaceAll("%time%", GlobalVariables.convertTime(time))));
             }
         }).schedule();
     }
