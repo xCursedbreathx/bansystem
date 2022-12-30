@@ -10,6 +10,9 @@ onlyplayercommand = "&cYou can only use this command as a player!"
 onlyconsolecommand = "&cYou can only use this command from the console!"
 notenounghpermissions = "&cYou don't have enough permissions to use this command!"
 
+idnotfound = "&cThe ID you entered was not found!"
+playernotfound = "&c%player% could not be found!"
+
 banbypass = "&cYou can´t ban %player% because he has the Permissions: bansystem.bypass"
 bannotify = "&7%player% has been banned by %by% for %reason% until %time%"
 unbannotify = "&7%player% was unbanned by %by%"

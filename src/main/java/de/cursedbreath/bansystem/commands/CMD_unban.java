@@ -43,7 +43,7 @@ public class CMD_unban implements SimpleCommand {
                 try {
                     UUID uuid = MySQLStandardFunctions.getUUID(playername);
                     if(uuid == null) {
-                        invocation.source().sendMessage(Component.text(GlobalVariables.PREFIX + "§cPlayer not found!", NamedTextColor.RED));
+                        invocation.source().sendMessage(Component.text(GlobalVariables.PREFIX + BanSystem.getVelocityConfig().getMessage("playernotfound")));
                         return;
                     }
                     if(MySQLStandardFunctions.checkBAN(uuid.toString())) {
@@ -62,7 +62,7 @@ public class CMD_unban implements SimpleCommand {
                 try {
                     UUID uuid = MySQLStandardFunctions.getUUID(playername);
                     if(uuid == null) {
-                        invocation.source().sendMessage(Component.text(GlobalVariables.PREFIX + "§cPlayer not found!", NamedTextColor.RED));
+                        invocation.source().sendMessage(Component.text(GlobalVariables.PREFIX + BanSystem.getVelocityConfig().getMessage("playernotfound")));
                         return;
                     }
                     if(MySQLStandardFunctions.checkBAN(uuid.toString())) {

@@ -39,12 +39,12 @@ public class CMD_ban implements SimpleCommand {
             String reasonid = invocation.arguments()[1];
 
             if(proxyServer.getPlayer(playername).isEmpty()) {
-                invocation.source().sendMessage(Component.text(GlobalVariables.PREFIX + "§cPlayer not found!", NamedTextColor.RED));
+                invocation.source().sendMessage(Component.text(GlobalVariables.PREFIX + BanSystem.getVelocityConfig().getMessage("playernotfound")));
                 return;
             }
 
             if(!BanSystem.getVelocityConfig().isID(reasonid)) {
-                invocation.source().sendMessage(Component.text(GlobalVariables.PREFIX + "§cReasonID not found!", NamedTextColor.RED));
+                invocation.source().sendMessage(Component.text(GlobalVariables.PREFIX + BanSystem.getVelocityConfig().getMessage("idnotfound")));
                 return;
             }
 
