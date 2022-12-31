@@ -1,5 +1,7 @@
 package de.cursedbreath.bansystem;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.inject.Inject;
 import com.velocitypowered.api.command.CommandManager;
 import com.velocitypowered.api.event.EventManager;
@@ -11,17 +13,19 @@ import de.cursedbreath.bansystem.commands.CMD_ban;
 import de.cursedbreath.bansystem.commands.CMD_history;
 import de.cursedbreath.bansystem.commands.CMD_unban;
 import de.cursedbreath.bansystem.listener.ConnectionListener;
+import de.cursedbreath.bansystem.utils.UpdateChecker;
 import de.cursedbreath.bansystem.utils.configuration.VelocityConfig;
 import de.cursedbreath.bansystem.utils.mysql.MySQLConnectionPool;
 import de.cursedbreath.bansystem.utils.mysql.MySQLStandardFunctions;
 import org.slf4j.Logger;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 
 @Plugin(
         id = "bansystem",
         name = "Bansystem",
-        version = "1.0.5",
+        version = "1.0.6",
         description = "A Simple ID Ban System",
         authors = {"Cursedbreath"}
 )
@@ -41,6 +45,7 @@ public class BanSystem {
     private EventManager eventManager;
 
     private static BanSystem instance;
+
     @Inject
     public BanSystem(ProxyServer proxyServer, Logger logger) {
         this.proxyServer = proxyServer;
@@ -84,6 +89,12 @@ public class BanSystem {
 
         registerCommands();
         registerEvents();
+
+        try {
+            new UpdateChecker("czeStruK", logger);
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -98,8 +109,8 @@ public class BanSystem {
      * Returns the Current Version of the Plugin.
      * @return String
      */
-    private String getVersion() {
-        return "1.0.5";
+    public static String getVersion() {
+        return "1.0.6";
     }
 
     /**
