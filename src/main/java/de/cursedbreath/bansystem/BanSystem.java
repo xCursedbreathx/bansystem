@@ -8,19 +8,22 @@ import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.ProxyServer;
 import de.cursedbreath.bansystem.commands.CMD_ban;
+import de.cursedbreath.bansystem.commands.CMD_history;
 import de.cursedbreath.bansystem.commands.CMD_unban;
 import de.cursedbreath.bansystem.listener.ConnectionListener;
+import de.cursedbreath.bansystem.utils.UpdateChecker;
 import de.cursedbreath.bansystem.utils.configuration.VelocityConfig;
 import de.cursedbreath.bansystem.utils.mysql.MySQLConnectionPool;
 import de.cursedbreath.bansystem.utils.mysql.MySQLStandardFunctions;
 import org.slf4j.Logger;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 
 @Plugin(
         id = "bansystem",
         name = "Bansystem",
-        version = "1.0.1",
+        version = "1.0.7",
         description = "A Simple ID Ban System",
         authors = {"Cursedbreath"}
 )
@@ -40,6 +43,7 @@ public class BanSystem {
     private EventManager eventManager;
 
     private static BanSystem instance;
+
     @Inject
     public BanSystem(ProxyServer proxyServer, Logger logger) {
         this.proxyServer = proxyServer;
@@ -52,6 +56,10 @@ public class BanSystem {
         }
     }
 
+    /**
+     * This method is called when the plugin is enabled.
+     * @param event
+     */
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
 
@@ -79,32 +87,66 @@ public class BanSystem {
 
         registerCommands();
         registerEvents();
+
+        try {
+            new UpdateChecker("czeStruK", logger);
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
+    /**
+     * Returns the Current Instance of the Plugin.
+     * @return BanSystem
+     */
     public static BanSystem getInstance() {
         return instance;
     }
-    private String getVersion() {
-        return "1.0.1";
+
+    /**
+     * Returns the Current Version of the Plugin.
+     * @return String
+     */
+    public static String getVersion() {
+        return "1.0.7";
     }
 
+    /**
+     * Returns the current MySQLConnectionPool.
+     * @return MySQLConnectionPool
+     */
     public static MySQLConnectionPool getMySQLConnectionPool() {
         return mySQLConnectionPool;
     }
 
+    /**
+     * Returns the current VelocityConfig.
+     * @return VelocityConfig
+     */
     public static VelocityConfig getVelocityConfig() {
         return velocityConfig;
     }
 
+    /**
+     * Sets a new MySQLConnectionPool.
+     * @param mySQLConnectionPool
+     */
     public static void setMySQLConnectionPool(MySQLConnectionPool mySQLConnectionPool) {
         BanSystem.mySQLConnectionPool = mySQLConnectionPool;
     }
 
+    /**
+     * Registers all Commands.
+     */
     private void registerCommands() {
         commandManager.register(commandManager.metaBuilder("netban").build(), new CMD_ban(proxyServer, logger));
         commandManager.register(commandManager.metaBuilder("netunban").build(), new CMD_unban(proxyServer, logger));
+        commandManager.register(commandManager.metaBuilder("nethistory").build(), new CMD_history(proxyServer));
     }
 
+    /**
+     * Registers all Events.
+     */
     private void registerEvents() {
         eventManager.register(this, new ConnectionListener(proxyServer, logger));
     }

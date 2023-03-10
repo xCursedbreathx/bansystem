@@ -1,15 +1,49 @@
-#Please note the upper and lower case before the equal signs.
+# Please note the upper and lower case before the equal signs.
+# Duration 0 means Permanent ban.
 [1]
-
-reason = "Example Reason"
-duration = 120000
+reason = "Unerlaubte Clientmodification/Hackclient"
+durations = [ 2592000, 5184000, 7776000, 0 ]
 
 [2]
-
-reason = "Example Reason 2"
-duration = 120000
+reason = "Reportmissbrauch"
+durations = [ 864000, 1728000, 2592000, 0 ]
 
 [3]
+reason = "Unangebrachter Skin/Name"
+durations = [ 2592000, 5184000, 7776000, 0 ]
 
-reason = "Example Reason 3"
-duration = 120000
+[4]
+reason = "Crossteaming"
+durations = [ 864000, 1728000, 2592000, 0 ]
+
+[5]
+reason = "Bugusing"
+durations = [ 864000, 1728000, 2592000, 0 ]
+
+[6]
+reason = "Chat Verhalten"
+durations = [ 86400, 1728000, 2592000, 0 ]
+
+[7]
+reason = "Werbung"
+durations = [ 604800, 1209600, 1814400, 2419200 ]
+
+[11]
+reason = "Test"
+duration = 1
+
+[80]
+reason = "Alt-Account"
+durations = [ 0 ]
+
+[81]
+reason = "Bannumgehung"
+durations = [ 0 ]
+
+[82]
+reason = "Sicherheitsbann"
+durations = [ 0 ]
+
+[99]
+reason = "EXTREM"
+durations = [ 0 ]

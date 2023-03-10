@@ -3,12 +3,14 @@ package de.cursedbreath.bansystem.commands;
 import com.velocitypowered.api.command.SimpleCommand;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
+import de.cursedbreath.bansystem.BanSystem;
 import de.cursedbreath.bansystem.utils.GlobalVariables;
 import de.cursedbreath.bansystem.utils.mysql.MySQLStandardFunctions;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.slf4j.Logger;
 
+import java.sql.SQLException;
 import java.util.UUID;
 
 public class CMD_unban implements SimpleCommand {
@@ -24,29 +26,56 @@ public class CMD_unban implements SimpleCommand {
 
     @Override
     public void execute(Invocation invocation) {
-        if(invocation.arguments().length != 1) {
-            invocation.source().sendMessage(Component.text(GlobalVariables.PREFIX + "§cUsage: /unban <player>", NamedTextColor.RED));
-            return;
-        }
-        String playername = invocation.arguments()[0];
+        proxyServer.getScheduler().buildTask(BanSystem.getInstance(), ()->{
+            if(invocation.arguments().length != 1) {
+                invocation.source().sendMessage(Component.text(GlobalVariables.PREFIX + "§cUsage: /unban <player>", NamedTextColor.RED));
+                return;
+            }
+            String playername = invocation.arguments()[0];
 
-        if(invocation.source() instanceof Player player) {
-            String unbannedby = player.getUsername();
-            UUID uuid = MySQLStandardFunctions.getUUID(playername);
-            if(MySQLStandardFunctions.checkBAN(uuid.toString())) {
-                MySQLStandardFunctions.deleteBAN(uuid.toString());
-                notifyADMINS(GlobalVariables.PREFIX + "User " + playername + " was unbanned by " + unbannedby);
+            /**
+             * Unban Player
+             */
+            if(invocation.source() instanceof Player player) {
+                String unbannedby = player.getUsername();
+
+
+                try {
+                    UUID uuid = MySQLStandardFunctions.getUUID(playername);
+                    if(uuid == null) {
+                        invocation.source().sendMessage(Component.text(GlobalVariables.PREFIX + BanSystem.getVelocityConfig().getMessage("playernotfound")));
+                        return;
+                    }
+                    if(MySQLStandardFunctions.checkBAN(uuid.toString())) {
+                        MySQLStandardFunctions.deleteBAN(uuid.toString());
+                        notifyADMINS(GlobalVariables.PREFIX + BanSystem.getVelocityConfig().getMessage("unbannotify")
+                                .replaceAll("%player%", playername)
+                                .replaceAll("%by%", unbannedby));
+                    }
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
             }
-        }
-        else
-        {
-            String unbannedby = "CONSOLE";
-            UUID uuid = MySQLStandardFunctions.getUUID(playername);
-            if(MySQLStandardFunctions.checkBAN(uuid.toString())) {
-                MySQLStandardFunctions.deleteBAN(uuid.toString());
-                notifyADMINS(GlobalVariables.PREFIX + "User " + playername + " was unbanned by " + unbannedby);
+            else
+            {
+                String unbannedby = "CONSOLE";
+                try {
+                    UUID uuid = MySQLStandardFunctions.getUUID(playername);
+                    if(uuid == null) {
+                        invocation.source().sendMessage(Component.text(GlobalVariables.PREFIX + BanSystem.getVelocityConfig().getMessage("playernotfound")));
+                        return;
+                    }
+                    if(MySQLStandardFunctions.checkBAN(uuid.toString())) {
+                        MySQLStandardFunctions.deleteBAN(uuid.toString());
+                        notifyADMINS(GlobalVariables.PREFIX + BanSystem.getVelocityConfig().getMessage("unbannotify")
+                                .replaceAll("%player%", playername)
+                                .replaceAll("%by%", unbannedby));
+                    }
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
             }
-        }
+        }).schedule();
     }
 
     @Override
@@ -54,6 +83,10 @@ public class CMD_unban implements SimpleCommand {
         return invocation.source().hasPermission("bansystem.unban");
     }
 
+    /**
+     * Notify all Admins
+     * @param message
+     */
     private void notifyADMINS(String message) {
         proxyServer.getAllPlayers()
                 .stream()
