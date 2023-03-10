@@ -43,8 +43,11 @@ public class ConnectionListener {
 
             try {
                 if(MySQLStandardFunctions.playerExists(uuid)) {
+
                     if(Objects.equals(MySQLStandardFunctions.getNAME(uuid), name)) {
+
                         if(MySQLStandardFunctions.checkBAN(uuid)) {
+
                             ResultSet resultSet = MySQLStandardFunctions.getBAN(uuid);
                             String reason = resultSet.getString("reason");
                             String bannedby = resultSet.getString("bannedby");
@@ -57,28 +60,8 @@ public class ConnectionListener {
                                 player.disconnect(Component.text(BanSystem.getVelocityConfig().getMessage("bannedscreen")
                                         .replaceAll("%reason%", reason)
                                         .replaceAll("%by%", bannedby)
-                                        .replaceAll("%time%", GlobalVariables.convertTime(time))));
-                            }
-                            if(System.currentTimeMillis() < time) {
+                                        .replaceAll("%time%", "PERMANENT")));
 
-                                player.disconnect(Component.text(BanSystem.getVelocityConfig().getMessage("bannedscreen")
-                                        .replaceAll("%reason%", reason)
-                                        .replaceAll("%by%", bannedby)
-                                        .replaceAll("%time%", GlobalVariables.convertTime(time))));
-                            }
-                            else
-                            {
-                                MySQLStandardFunctions.deleteBAN(uuid);
-                            }
-                        }
-                    } else {
-                        MySQLStandardFunctions.updatePLAYERNAME(name, uuid);
-                        if(MySQLStandardFunctions.checkBAN(uuid)) {
-                            ResultSet resultSet = MySQLStandardFunctions.getBAN(uuid);
-                            String reason = resultSet.getString("reason");
-                            String bannedby = resultSet.getString("bannedby");
-                            long time = resultSet.getLong("banneduntil");
-                            if(event.getPlayer().hasPermission("bansystem.bypass")) {
                                 return;
                             }
                             if(System.currentTimeMillis() < time) {
@@ -87,6 +70,45 @@ public class ConnectionListener {
                                         .replaceAll("%reason%", reason)
                                         .replaceAll("%by%", bannedby)
                                         .replaceAll("%time%", GlobalVariables.convertTime(time))));
+
+                            }
+                            else
+                            {
+                                MySQLStandardFunctions.deleteBAN(uuid);
+                            }
+                        }
+                    } else {
+
+                        MySQLStandardFunctions.updatePLAYERNAME(name, uuid);
+
+                        if(MySQLStandardFunctions.checkBAN(uuid)) {
+
+                            ResultSet resultSet = MySQLStandardFunctions.getBAN(uuid);
+                            String reason = resultSet.getString("reason");
+                            String bannedby = resultSet.getString("bannedby");
+                            long time = resultSet.getLong("banneduntil");
+
+                            if(event.getPlayer().hasPermission("bansystem.bypass")) {
+                                return;
+                            }
+
+                            if(time == 0) {
+
+                                player.disconnect(Component.text(BanSystem.getVelocityConfig().getMessage("bannedscreen")
+                                        .replaceAll("%reason%", reason)
+                                        .replaceAll("%by%", bannedby)
+                                        .replaceAll("%time%", "PERMANENT")));
+
+                                return;
+                            }
+
+                            if(System.currentTimeMillis() < time) {
+
+                                player.disconnect(Component.text(BanSystem.getVelocityConfig().getMessage("bannedscreen")
+                                        .replaceAll("%reason%", reason)
+                                        .replaceAll("%by%", bannedby)
+                                        .replaceAll("%time%", GlobalVariables.convertTime(time))));
+
                             }
                             else
                             {

@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.util.List;
 
 public class VelocityConfig {
 
@@ -77,23 +78,26 @@ public class VelocityConfig {
 
     public boolean isID(String id) {
         Toml reader = new Toml().read(banidfile);
-        if(reader.getString(id+".reason") != null) {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        logger.info("ID Table Exists: "+ reader.containsTable(id));
+        return reader.containsTable(id);
     }
 
     public String getReason(String id) {
         Toml reader = new Toml().read(banidfile);
-        return reader.getString(id+".reason");
+        String key = id + ".reason";
+        logger.info("Reason: "+ reader.getString(key));
+        return reader.getString(key);
     }
 
-    public Long getDuration(String id) {
+    public List<Long> getDurations(String id) {
         Toml reader = new Toml().read(banidfile);
-        return reader.getLong(id+".duration");
+        logger.info("-> Table Exists: " + reader.containsTable(id));
+        Toml ids = reader.getTable(id);
+        logger.info("-> Exists: " + ids.contains("durations"));
+        List<Long> values = ids.getList("durations");
+        logger.info(reader.contains(id) + " <- ");
+        logger.info("Durations: "+ values);
+        return values;
     }
 
     public String getMessage(String key) {

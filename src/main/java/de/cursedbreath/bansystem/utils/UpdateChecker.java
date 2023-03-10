@@ -30,7 +30,7 @@ public class UpdateChecker {
     }
 
     public String getLatestVersionURL() {
-        return "https://modrinth.com/plugin/" + project;
+        return "https://hangar.papermc.io/Cursedbreath/BanSystem-with-IDs";
     }
 
     public boolean checkForUpdates() {

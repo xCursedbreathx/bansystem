@@ -316,6 +316,29 @@ public class MySQLStandardFunctions {
     }
 
 
+    public static int getBannedTimes(String uuid, String reason) throws SQLException {
+        Connection conn = null;
+        try {
+            conn = BanSystem.getMySQLConnectionPool().getConnection();
+            PreparedStatement preparedStatement = conn.prepareStatement("SELECT * FROM ban_history WHERE uuid = ? AND reason = ?");
+            preparedStatement.setString(1, uuid);
+            preparedStatement.setString(2, reason);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            int i = 1;
+            while (resultSet.next()) {
+                i++;
+            }
+            return i;
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        } finally {
+            if (conn != null) {
+                BanSystem.getMySQLConnectionPool().returnConnection(conn);
+            }
+        }
+    }
+
+
     //Script Executor
 
     /**
