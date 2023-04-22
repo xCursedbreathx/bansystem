@@ -10,7 +10,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.slf4j.Logger;
 
-import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,13 +29,21 @@ public class CMD_ban implements SimpleCommand {
     @Override
     public void execute(Invocation invocation) {
         proxyServer.getScheduler().buildTask(BanSystem.getInstance(), ()->{
-            if(invocation.arguments().length != 2) {
-                invocation.source().sendMessage(Component.text(GlobalVariables.PREFIX + "§cUsage: /ban <player> <reasonid>", NamedTextColor.RED));
+            if(invocation.arguments().length >= 3) {
+                invocation.source().sendMessage(Component.text(GlobalVariables.PREFIX + "§cUsage: /netban <player> <reasonid> <global/server> <Servername>", NamedTextColor.RED));
                 return;
             }
 
             String playername = invocation.arguments()[0];
             String reasonid = invocation.arguments()[1];
+            String type = invocation.arguments()[2];
+            String servername;
+
+            try {
+                servername = invocation.arguments()[3];
+            } catch (Exception e) {
+                servername = "null";
+            }
 
             if(proxyServer.getPlayer(playername).isEmpty()) {
                 invocation.source().sendMessage(Component.text(GlobalVariables.PREFIX + BanSystem.getVelocityConfig().getMessage("playernotfound")));
@@ -53,7 +60,9 @@ public class CMD_ban implements SimpleCommand {
                 return;
             }
 
-            if(invocation.source() instanceof Player player) {
+            String reason = BanSystem.getVelocityConfig().getReason(reasonid);
+
+            if(invocation.source() instanceof Player sender) {
 
 
 
@@ -71,16 +80,11 @@ public class CMD_ban implements SimpleCommand {
 
                 long time;
 
-                String reason = BanSystem.getVelocityConfig().getReason(reasonid);
-                String bannedby = player.getUsername();
+                String bannedby = sender.getUsername();
 
                 int BannedTimes = -1;
 
-                try {
-                    BannedTimes = MySQLStandardFunctions.getBannedTimes(target.getUniqueId().toString(), reason);
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
-                }
+                BannedTimes = MySQLStandardFunctions.newgetBannedTimes(target.getUniqueId().toString(), Integer.valueOf(reasonid));
 
                 if(BannedTimes == -1){
                     invocation.source().sendMessage(Component.text(GlobalVariables.PREFIX + "§cAn error occurred while trying to fetch the BannedTimes from this player!", NamedTextColor.RED));
@@ -101,12 +105,22 @@ public class CMD_ban implements SimpleCommand {
                             .replaceAll("%by%", bannedby)
                             .replaceAll("%time%", "PERMANENT")));
 
-                    try {
-                        MySQLStandardFunctions.insertBAN(target.getUniqueId().toString(), target.getUsername(), reason, bannedby, time);
-                        MySQLStandardFunctions.insertHistory(target.getUniqueId().toString(), target.getUsername(), reason, bannedby, time);
-                    } catch (SQLException e) {
-                        throw new RuntimeException(e);
+                    if(!type.equalsIgnoreCase("global")) {
+                        if(MySQLStandardFunctions.isServerBanned(target.getUniqueId().toString())) {
+                            MySQLStandardFunctions.removeBanFromDatabase(target.getUniqueId().toString());
+                            MySQLStandardFunctions.newBan(target.getUniqueId().toString(), reason, bannedby, "global", servername, time, Integer.valueOf(reasonid));
+                            return;
+                        }
                     }
+
+                    if(type.equalsIgnoreCase("global")) {
+                        if(MySQLStandardFunctions.isGlobalBanned(target.getUniqueId().toString())) {
+                            invocation.source().sendMessage(Component.text("This Player is already Global Banned.", NamedTextColor.RED));
+                            return;
+                        }
+                    }
+                    MySQLStandardFunctions.newBan(target.getUniqueId().toString(), reason, bannedby, type, servername, time, Integer.valueOf(reasonid));
+
 
                     return;
                 }
@@ -115,12 +129,21 @@ public class CMD_ban implements SimpleCommand {
                     time = System.currentTimeMillis() + time;
                 }
 
-                try {
-                    MySQLStandardFunctions.insertBAN(target.getUniqueId().toString(), target.getUsername(), reason, bannedby, time);
-                    MySQLStandardFunctions.insertHistory(target.getUniqueId().toString(), target.getUsername(), reason, bannedby, time);
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
+                if(!type.equalsIgnoreCase("global")) {
+                    if(MySQLStandardFunctions.isServerBanned(target.getUniqueId().toString())) {
+                        MySQLStandardFunctions.removeBanFromDatabase(target.getUniqueId().toString());
+                        MySQLStandardFunctions.newBan(target.getUniqueId().toString(), reason, bannedby, "global", servername, time, Integer.valueOf(reasonid));
+                        return;
+                    }
                 }
+
+                if(type.equalsIgnoreCase("global")) {
+                    if(MySQLStandardFunctions.isGlobalBanned(target.getUniqueId().toString())) {
+                        invocation.source().sendMessage(Component.text("This Player is already Global Banned.", NamedTextColor.RED));
+                        return;
+                    }
+                }
+                MySQLStandardFunctions.newBan(target.getUniqueId().toString(), reason, bannedby, type, servername, time, Integer.valueOf(reasonid));
 
                 notifyADMINS(GlobalVariables.PREFIX + BanSystem.getVelocityConfig().getMessage("bannotify")
                         .replaceAll("%player%", playername)
@@ -152,22 +175,18 @@ public class CMD_ban implements SimpleCommand {
                 Player target = proxyServer.getPlayer(playername).get();
 
                 if(target.hasPermission("bansystem.bypass")) {
-                    invocation.source().sendMessage(Component.text(GlobalVariables.PREFIX + "§cYou can't ban this player!", NamedTextColor.RED));
+                    invocation.source().sendMessage(Component.text(GlobalVariables.PREFIX + BanSystem.getVelocityConfig().getMessage("banbypass")
+                            .replaceAll("%player%", playername)));
                     return;
                 }
 
                 long time;
 
-                String reason = BanSystem.getVelocityConfig().getReason(reasonid);
                 String bannedby = "CONSOLE";
 
                 int BannedTimes = -1;
 
-                try {
-                    BannedTimes = MySQLStandardFunctions.getBannedTimes(target.getUniqueId().toString(), reason);
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
-                }
+                BannedTimes = MySQLStandardFunctions.newgetBannedTimes(target.getUniqueId().toString(), Integer.valueOf(reasonid));
 
                 if(BannedTimes == -1){
                     invocation.source().sendMessage(Component.text(GlobalVariables.PREFIX + "§cAn error occurred while trying to fetch the BannedTimes from this player!", NamedTextColor.RED));
@@ -188,12 +207,22 @@ public class CMD_ban implements SimpleCommand {
                             .replaceAll("%by%", bannedby)
                             .replaceAll("%time%", "PERMANENT")));
 
-                    try {
-                        MySQLStandardFunctions.insertBAN(target.getUniqueId().toString(), target.getUsername(), reason, bannedby, time);
-                        MySQLStandardFunctions.insertHistory(target.getUniqueId().toString(), target.getUsername(), reason, bannedby, time);
-                    } catch (SQLException e) {
-                        throw new RuntimeException(e);
+                    if(!type.equalsIgnoreCase("global")) {
+                        if(MySQLStandardFunctions.isServerBanned(target.getUniqueId().toString())) {
+                            MySQLStandardFunctions.removeBanFromDatabase(target.getUniqueId().toString());
+                            MySQLStandardFunctions.newBan(target.getUniqueId().toString(), reason, bannedby, "global", servername, time, Integer.valueOf(reasonid));
+                            return;
+                        }
                     }
+
+                    if(type.equalsIgnoreCase("global")) {
+                        if(MySQLStandardFunctions.isGlobalBanned(target.getUniqueId().toString())) {
+                            invocation.source().sendMessage(Component.text("This Player is already Global Banned.", NamedTextColor.RED));
+                            return;
+                        }
+                    }
+                    MySQLStandardFunctions.newBan(target.getUniqueId().toString(), reason, bannedby, type, servername, time, Integer.valueOf(reasonid));
+
 
                     return;
                 }
@@ -202,12 +231,21 @@ public class CMD_ban implements SimpleCommand {
                     time = System.currentTimeMillis() + time;
                 }
 
-                try {
-                    MySQLStandardFunctions.insertBAN(target.getUniqueId().toString(), target.getUsername(), reason, bannedby, time);
-                    MySQLStandardFunctions.insertHistory(target.getUniqueId().toString(), target.getUsername(), reason, bannedby, time);
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
+                if(!type.equalsIgnoreCase("global")) {
+                    if(MySQLStandardFunctions.isServerBanned(target.getUniqueId().toString())) {
+                        MySQLStandardFunctions.removeBanFromDatabase(target.getUniqueId().toString());
+                        MySQLStandardFunctions.newBan(target.getUniqueId().toString(), reason, bannedby, "global", servername, time, Integer.valueOf(reasonid));
+                        return;
+                    }
                 }
+
+                if(type.equalsIgnoreCase("global")) {
+                    if(MySQLStandardFunctions.isGlobalBanned(target.getUniqueId().toString())) {
+                        invocation.source().sendMessage(Component.text("This Player is already Global Banned.", NamedTextColor.RED));
+                        return;
+                    }
+                }
+                MySQLStandardFunctions.newBan(target.getUniqueId().toString(), reason, bannedby, type, servername, time, Integer.valueOf(reasonid));
 
                 notifyADMINS(GlobalVariables.PREFIX + BanSystem.getVelocityConfig().getMessage("bannotify")
                         .replaceAll("%player%", playername)
@@ -260,4 +298,5 @@ public class CMD_ban implements SimpleCommand {
                 .forEach(player ->
                         player.sendMessage(Component.text(message)));
     }
+
 }

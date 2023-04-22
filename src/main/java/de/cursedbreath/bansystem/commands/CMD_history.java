@@ -24,7 +24,7 @@ public class CMD_history implements SimpleCommand {
     public void execute(Invocation invocation) {
         proxyServer.getScheduler().buildTask(BanSystem.getInstance(), ()->{
             if(invocation.arguments().length != 1) {
-                invocation.source().sendMessage(Component.text(GlobalVariables.PREFIX + "§cUsage: /history <player>", NamedTextColor.RED));
+                invocation.source().sendMessage(Component.text(GlobalVariables.PREFIX + "§cUsage: /nethistory <player>", NamedTextColor.RED));
                 return;
             }
             String playername = invocation.arguments()[0];

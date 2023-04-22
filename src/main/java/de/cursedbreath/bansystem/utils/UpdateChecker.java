@@ -1,25 +1,23 @@
 package de.cursedbreath.bansystem.utils;
 
-import com.google.gson.JsonParser;
 import de.cursedbreath.bansystem.BanSystem;
 import org.slf4j.Logger;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Scanner;
 
 public class UpdateChecker {
 
     private final Logger logger;
-    JsonParser jsonParser;
     private URL checkUrl;
     private String project;
 
     public UpdateChecker(String projectID, Logger logger) throws MalformedURLException {
         this.logger = logger;
-        jsonParser = new JsonParser();
         project = projectID;
         try {
-            checkUrl = new URL("https://api.modrinth.com/v2/project/"+ projectID +"/version");
+            checkUrl = new URL("https://hangar.papermc.io/api/v1/projects/Cursedbreath/"+ projectID +"/latestrelease");
         } catch (MalformedURLException e) {
             throw new MalformedURLException("The URL is malformed!");
         }
@@ -30,13 +28,13 @@ public class UpdateChecker {
     }
 
     public String getLatestVersionURL() {
-        return "https://hangar.papermc.io/Cursedbreath/BanSystem-with-IDs";
+        return "https://hangar.papermc.io/Cursedbreath/" + project;
     }
 
     public boolean checkForUpdates() {
         try {
-            String version = jsonParser.parse(new java.util.Scanner(checkUrl.openStream()).useDelimiter("\\A").next()).getAsJsonArray().get(0).getAsJsonObject().get("version_number").getAsString();
-            return !version.equals(BanSystem.getVersion());
+            String newVersion = new Scanner(checkUrl.openStream(), "UTF-8").useDelimiter("\\A").next();
+            return !newVersion.equals(BanSystem.getVersion());
         } catch (Exception e) {
             logger.error("Failed to check for updates: " + e.getMessage());
             return false;

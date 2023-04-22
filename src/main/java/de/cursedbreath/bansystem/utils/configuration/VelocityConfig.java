@@ -78,25 +78,19 @@ public class VelocityConfig {
 
     public boolean isID(String id) {
         Toml reader = new Toml().read(banidfile);
-        logger.info("ID Table Exists: "+ reader.containsTable(id));
         return reader.containsTable(id);
     }
 
     public String getReason(String id) {
         Toml reader = new Toml().read(banidfile);
         String key = id + ".reason";
-        logger.info("Reason: "+ reader.getString(key));
         return reader.getString(key);
     }
 
     public List<Long> getDurations(String id) {
         Toml reader = new Toml().read(banidfile);
-        logger.info("-> Table Exists: " + reader.containsTable(id));
         Toml ids = reader.getTable(id);
-        logger.info("-> Exists: " + ids.contains("durations"));
         List<Long> values = ids.getList("durations");
-        logger.info(reader.contains(id) + " <- ");
-        logger.info("Durations: "+ values);
         return values;
     }
 

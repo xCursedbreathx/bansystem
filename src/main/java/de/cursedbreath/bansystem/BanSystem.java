@@ -23,7 +23,7 @@ import java.net.MalformedURLException;
 @Plugin(
         id = "bansystem",
         name = "Bansystem",
-        version = "1.0.7",
+        version = "2.0.0",
         description = "A Simple ID Ban System",
         authors = {"Cursedbreath"}
 )
@@ -89,7 +89,7 @@ public class BanSystem {
         registerEvents();
 
         try {
-            new UpdateChecker("czeStruK", logger);
+            new UpdateChecker("BanSystem-with-IDs", logger);
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }
@@ -108,7 +108,7 @@ public class BanSystem {
      * @return String
      */
     public static String getVersion() {
-        return "1.0.7";
+        return "2.0.0";
     }
 
     /**

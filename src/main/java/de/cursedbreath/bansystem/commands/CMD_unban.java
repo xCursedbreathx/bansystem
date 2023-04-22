@@ -28,7 +28,7 @@ public class CMD_unban implements SimpleCommand {
     public void execute(Invocation invocation) {
         proxyServer.getScheduler().buildTask(BanSystem.getInstance(), ()->{
             if(invocation.arguments().length != 1) {
-                invocation.source().sendMessage(Component.text(GlobalVariables.PREFIX + "§cUsage: /unban <player>", NamedTextColor.RED));
+                invocation.source().sendMessage(Component.text(GlobalVariables.PREFIX + "§cUsage: /netunban <player>", NamedTextColor.RED));
                 return;
             }
             String playername = invocation.arguments()[0];
