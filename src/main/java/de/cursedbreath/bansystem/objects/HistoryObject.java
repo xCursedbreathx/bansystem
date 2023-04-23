@@ -8,6 +8,8 @@ public class HistoryObject {
 
     private String PUNISHBY;
 
+    private String PUNISHTYPE;
+
     private long PUNISHAT;
 
     private long PUNISHUNTIL;
@@ -17,14 +19,14 @@ public class HistoryObject {
     private int BANID;
 
 
-    public HistoryObject(int PUNISHID, String PUNISHUUID, String PUNISHBY, long PUNISHAT, long PUNISHUNTIL, int PUNISHFORID, int BANID) {
+    public HistoryObject(int PUNISHID, String PUNISHUUID, String PUNISHBY, String PUNISHTYPE, long PUNISHAT, long PUNISHUNTIL, int PUNISHFORID) {
         this.PUNISHID = PUNISHID;
         this.PUNISHUUID = PUNISHUUID;
         this.PUNISHBY = PUNISHBY;
+        this.PUNISHTYPE = PUNISHTYPE;
         this.PUNISHAT = PUNISHAT;
         this.PUNISHUNTIL = PUNISHUNTIL;
         this.PUNISHFORID = PUNISHFORID;
-        this.BANID = BANID;
     }
 
     public int getPUNISHID() {

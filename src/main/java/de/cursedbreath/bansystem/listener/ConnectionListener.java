@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.UUID;
 
 public class ConnectionListener {
 
@@ -38,12 +39,12 @@ public class ConnectionListener {
     public void onPlayerConnect(PostLoginEvent event) {
         proxyServer.getScheduler().buildTask(BanSystem.getInstance(), () -> {
             Player player = event.getPlayer();
-            String uuid = player.getUniqueId().toString();
+            UUID uuid = player.getUniqueId();
             String name = player.getUsername();
 
             try {
-                if(!MySQLStandardFunctions.playerAlreadyExists(uuid)) {
-                    MySQLStandardFunctions.newPlayer(uuid, name);
+                if(!MySQLStandardFunctions.isPlayerInDatabase(uuid)) {
+                    MySQLStandardFunctions.createNewPlayer(uuid, name);
                     return;
                 }
 
