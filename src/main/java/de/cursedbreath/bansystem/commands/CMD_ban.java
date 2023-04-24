@@ -47,6 +47,11 @@ public class CMD_ban implements SimpleCommand {
                 return;
             }
 
+            if(!BanSystem.getVelocityConfig().isID(reasonid)) {
+                invocation.source().sendMessage(Component.text(GlobalVariables.PREFIX + BanSystem.getVelocityConfig().getMessage("idnotfound"), NamedTextColor.RED));
+                return;
+            }
+
             String reason = BanSystem.getVelocityConfig().getReason(reasonid);
 
             long time = -1;
@@ -122,9 +127,12 @@ public class CMD_ban implements SimpleCommand {
 
                         BanSystem.getVelocityConfig().notifyADMINS(
 
+                                GlobalVariables.PREFIX
+                                        +
                                 BanSystem.getVelocityConfig().getMessage("bannotify")
                                         .replaceAll("%player%", playername)
                                         .replaceAll("%reason%", reason)
+                                        .replaceAll("%by%", bannedby)
                                         .replaceAll("%time%", GlobalVariables.convertTime(time))
                                         .replaceAll("%bannedby%", bannedby)
                                         .replaceAll("%type%", "global")
@@ -149,12 +157,15 @@ public class CMD_ban implements SimpleCommand {
 
                     BanSystem.getVelocityConfig().notifyADMINS(
 
-                            BanSystem.getVelocityConfig().getMessage("bannotify")
-                                    .replaceAll("%player%", playername)
-                                    .replaceAll("%reason%", reason)
-                                    .replaceAll("%time%", GlobalVariables.convertTime(time))
-                                    .replaceAll("%bannedby%", bannedby)
-                                    .replaceAll("%type%", "server")
+                            GlobalVariables.PREFIX
+                                    +
+                                    BanSystem.getVelocityConfig().getMessage("bannotify")
+                                            .replaceAll("%player%", playername)
+                                            .replaceAll("%reason%", reason)
+                                            .replaceAll("%by%", bannedby)
+                                            .replaceAll("%time%", GlobalVariables.convertTime(time))
+                                            .replaceAll("%bannedby%", bannedby)
+                                            .replaceAll("%type%", "global")
 
                     );
 
@@ -182,12 +193,15 @@ public class CMD_ban implements SimpleCommand {
 
                         BanSystem.getVelocityConfig().notifyADMINS(
 
-                                BanSystem.getVelocityConfig().getMessage("bannotify")
-                                        .replaceAll("%player%", playername)
-                                        .replaceAll("%reason%", reason)
-                                        .replaceAll("%time%", GlobalVariables.convertTime(time))
-                                        .replaceAll("%bannedby%", bannedby)
-                                        .replaceAll("%type%", "global")
+                                GlobalVariables.PREFIX
+                                        +
+                                        BanSystem.getVelocityConfig().getMessage("bannotify")
+                                                .replaceAll("%player%", playername)
+                                                .replaceAll("%reason%", reason)
+                                                .replaceAll("%by%", bannedby)
+                                                .replaceAll("%time%", GlobalVariables.convertTime(time))
+                                                .replaceAll("%bannedby%", bannedby)
+                                                .replaceAll("%type%", "global")
 
                         );
 
@@ -203,12 +217,15 @@ public class CMD_ban implements SimpleCommand {
 
                     BanSystem.getVelocityConfig().notifyADMINS(
 
-                            BanSystem.getVelocityConfig().getMessage("bannotify")
-                                    .replaceAll("%player%", playername)
-                                    .replaceAll("%reason%", reason)
-                                    .replaceAll("%time%", GlobalVariables.convertTime(time))
-                                    .replaceAll("%bannedby%", bannedby)
-                                    .replaceAll("%type%", "global")
+                            GlobalVariables.PREFIX
+                                    +
+                                    BanSystem.getVelocityConfig().getMessage("bannotify")
+                                            .replaceAll("%player%", playername)
+                                            .replaceAll("%reason%", reason)
+                                            .replaceAll("%by%", bannedby)
+                                            .replaceAll("%time%", GlobalVariables.convertTime(time))
+                                            .replaceAll("%bannedby%", bannedby)
+                                            .replaceAll("%type%", "global")
 
                     );
 

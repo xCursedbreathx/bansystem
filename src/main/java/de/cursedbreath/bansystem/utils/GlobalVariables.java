@@ -10,8 +10,6 @@ public class GlobalVariables {
 
     public static String PREFIX = "§7[§6BanSystem§7]§r ";
 
-    public static Map<UUID, Map<Integer, HistoryObject>> history = new HashMap<>();
-
     public static String convertTime(long time){
         Date date = new Date(time);
         Format format = new SimpleDateFormat("HH:mm:ss dd.MM.yyyy");

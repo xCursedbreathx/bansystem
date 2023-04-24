@@ -58,7 +58,7 @@ public class BanSystem {
 
     /**
      * This method is called when the plugin is enabled.
-     * @param event
+     * @param event The event that is called when the plugin is enabled.
      */
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
@@ -129,7 +129,7 @@ public class BanSystem {
 
     /**
      * Sets a new MySQLConnectionPool.
-     * @param mySQLConnectionPool
+     * @param mySQLConnectionPool The new MySQLConnectionPool.
      */
     public static void setMySQLConnectionPool(MySQLConnectionPool mySQLConnectionPool) {
         BanSystem.mySQLConnectionPool = mySQLConnectionPool;

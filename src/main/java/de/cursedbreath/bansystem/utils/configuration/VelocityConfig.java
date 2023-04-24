@@ -75,7 +75,7 @@ public class VelocityConfig {
          String username = configread.getString("MySQL.user");
          String password = configread.getString("MySQL.pass");
 
-         BanSystem.setMySQLConnectionPool(new MySQLConnectionPool("jdbc:mariadb:://"+host+":"+port+"/"+database+"", username, password, 40000, logger));
+         BanSystem.setMySQLConnectionPool(new MySQLConnectionPool("jdbc:mariadb:://"+host+":"+port+"/"+database+"", username, password, 20, logger));
     }
 
     public boolean isID(String id) {
