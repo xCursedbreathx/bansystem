@@ -1,7 +1,6 @@
 package de.cursedbreath.bansystem.utils;
 
 import de.cursedbreath.bansystem.BanSystem;
-import de.cursedbreath.bansystem.objects.HistoryObject;
 
 import java.text.Format;
 import java.text.SimpleDateFormat;

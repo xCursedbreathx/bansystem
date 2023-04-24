@@ -4,6 +4,7 @@ import com.moandjiezana.toml.Toml;
 import com.velocitypowered.api.proxy.ProxyServer;
 import de.cursedbreath.bansystem.BanSystem;
 import de.cursedbreath.bansystem.utils.mysql.MySQLConnectionPool;
+import net.kyori.adventure.text.Component;
 import org.slf4j.Logger;
 
 import java.io.File;
@@ -19,6 +20,7 @@ public class VelocityConfig {
     private final ProxyServer proxyServer;
 
     static File configPath = new File("plugins/bansystem/");
+
     static File banidfile = new File("plugins/bansystem/banids.toml");
 
     static File messagefile = new File("plugins/bansystem/messages.toml");
@@ -97,6 +99,26 @@ public class VelocityConfig {
     public String getMessage(String key) {
         Toml reader = new Toml().read(messagefile);
         return reader.getString("Messages."+key).replaceAll("&", "§");
+    }
+
+    /**
+     * Notifies all online admins about a ban
+     * @param message
+     */
+    public void notifyADMINS(String message) {
+
+        proxyServer.getAllPlayers()
+                .stream()
+                .filter(player ->
+                        player.hasPermission("bansystem.notify"))
+                .forEach(player ->
+                        player.sendMessage(Component.text(message)));
+
+    }
+
+    public String getLobbyName() {
+        Toml reader = new Toml().read(configfile);
+        return reader.getString("lobbynamecontains");
     }
 
 }

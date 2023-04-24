@@ -14,7 +14,7 @@ idnotfound = "&cThe ID you entered was not found!"
 playernotfound = "&c%player% could not be found!"
 
 banbypass = "&cYou can´t ban %player% because he has the Permissions: bansystem.bypass"
-bannotify = "&7%player% has been banned by %by% for %reason% until %time%"
+bannotify = "&7%player% has been banned by %by% for %reason% until %time% with type: %type%"
 unbannotify = "&7%player% was unbanned by %by%"
 
 bannedscreen = "&cYou are banned from this Server!\n\n&7Reason: &c%reason% \n&7Banned by: &c%by% \n&7Banned until: &c%time%"

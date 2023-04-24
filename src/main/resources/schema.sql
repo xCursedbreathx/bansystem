@@ -5,16 +5,24 @@
 -- HeidiSQL Version:             12.3.0.6589
 -- --------------------------------------------------------
 
--- Exportiere Struktur von Tabelle bansys2.active_bans
-CREATE TABLE IF NOT EXISTS `active_bans` (
+-- Exportiere Struktur von Tabelle bansys2.active_global_bans
+CREATE TABLE IF NOT EXISTS `active_global_bans` (
   `UUID` varchar(90) NOT NULL DEFAULT '',
   `REASON` varchar(255) DEFAULT '"Banned by a Operator"',
   `BANBY` varchar(90) DEFAULT NULL,
-  `BANTYPE` varchar(90) DEFAULT 'global',
-  `BANSERVER` varchar(90) DEFAULT NULL,
   `BANUNTIL` bigint(20) DEFAULT NULL,
   `BANFORID` int(11) DEFAULT NULL,
   PRIMARY KEY (`UUID`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Exportiere Struktur von Tabelle bansys2.active_server_bans
+CREATE TABLE IF NOT EXISTS `active_server_bans` (
+  `SBANID` int(11) NOT NULL AUTO_INCREMENT,
+  `SBANUUID` varchar(90) NOT NULL DEFAULT '0',
+  `SERVERNAME` varchar(90) NOT NULL DEFAULT '0',
+  `SBANBY` varchar(90) NOT NULL DEFAULT '0',
+  `SBANUNTIL` bigint(20) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`SBANID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Exportiere Struktur von Tabelle bansys2.command_logs
@@ -29,9 +37,8 @@ CREATE TABLE IF NOT EXISTS `command_logs` (
 
 -- Exportiere Struktur von Tabelle bansys2.player_data
 CREATE TABLE IF NOT EXISTS `player_data` (
-  `PLAYERID` varchar(90) NOT NULL DEFAULT '"PlayerUUID"',
+  `PLAYERID` varchar(90) NOT NULL,
   `PLAYERNAME` varchar(90) NOT NULL,
-  `GLOBALBANNED` tinyint(4) DEFAULT 0,
   PRIMARY KEY (`PLAYERID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 

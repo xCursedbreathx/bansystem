@@ -14,7 +14,7 @@ import de.cursedbreath.bansystem.listener.ConnectionListener;
 import de.cursedbreath.bansystem.utils.UpdateChecker;
 import de.cursedbreath.bansystem.utils.configuration.VelocityConfig;
 import de.cursedbreath.bansystem.utils.mysql.MySQLConnectionPool;
-import de.cursedbreath.bansystem.utils.mysql.MySQLStandardFunctions;
+import de.cursedbreath.bansystem.utils.mysql.MySQLFunctions;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -80,7 +80,7 @@ public class BanSystem {
             throw new RuntimeException(e);
         }
 
-        MySQLStandardFunctions.executeScript(this.getClass().getResourceAsStream("/schema.sql"));
+        MySQLFunctions.executeScript(this.getClass().getResourceAsStream("/schema.sql"));
 
         eventManager = proxyServer.getEventManager();
         commandManager = proxyServer.getCommandManager();
@@ -141,7 +141,7 @@ public class BanSystem {
     private void registerCommands() {
         commandManager.register(commandManager.metaBuilder("netban").build(), new CMD_ban(proxyServer, logger));
         commandManager.register(commandManager.metaBuilder("netunban").build(), new CMD_unban(proxyServer, logger));
-        //commandManager.register(commandManager.metaBuilder("nethistory").build(), new CMD_history(proxyServer));
+        commandManager.register(commandManager.metaBuilder("nethistory").build(), new CMD_history(proxyServer));
     }
 
     /**

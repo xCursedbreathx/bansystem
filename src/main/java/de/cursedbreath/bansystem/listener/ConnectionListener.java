@@ -7,7 +7,7 @@ import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import de.cursedbreath.bansystem.BanSystem;
 import de.cursedbreath.bansystem.utils.GlobalVariables;
-import de.cursedbreath.bansystem.utils.mysql.MySQLStandardFunctions;
+import de.cursedbreath.bansystem.utils.mysql.MySQLFunctions;
 import net.kyori.adventure.text.Component;
 import org.slf4j.Logger;
 
@@ -43,16 +43,16 @@ public class ConnectionListener {
             String name = player.getUsername();
 
             try {
-                if(!MySQLStandardFunctions.isPlayerInDatabase(uuid)) {
-                    MySQLStandardFunctions.createNewPlayer(uuid, name);
+                if(!MySQLFunctions.isPlayerInDatabase(uuid)) {
+                    MySQLFunctions.createNewPlayer(uuid, name);
                     return;
                 }
 
-                if(!MySQLStandardFunctions.isGlobalBanned(uuid)) {
+                if(!MySQLFunctions.isGlobalBanned(uuid)) {
                     return;
                 }
 
-                ResultSet banData = MySQLStandardFunctions.getBanData(uuid);
+                ResultSet banData = MySQLFunctions.requestGlobalBanData(uuid);
 
                 if(banData == null) {
                     return;
@@ -72,7 +72,7 @@ public class ConnectionListener {
                 }
 
                 if(time >= System.currentTimeMillis()) {
-                    MySQLStandardFunctions.removeBanFromDatabase(uuid);
+                    MySQLFunctions.removeBanFromDatabase(uuid);
                     return;
                 }
 
@@ -179,7 +179,7 @@ public class ConnectionListener {
 
         try {
 
-            ResultSet banData = MySQLStandardFunctions.getBanData(player.getUniqueId().toString());
+            ResultSet banData = MySQLFunctions.getBanData(player.getUniqueId().toString());
 
             if(banData == null) {
                 return;
