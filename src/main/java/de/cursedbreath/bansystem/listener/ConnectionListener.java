@@ -148,6 +148,10 @@ public class ConnectionListener {
             String bannedservername = banData.getString("servername").toLowerCase();
             long time = banData.getLong("sbanuntil");
 
+            if(bannedservername.contains(BanSystem.getVelocityConfig().getLobbyName().toLowerCase())) {
+                return;
+            }
+
             if(bannedservername.contains("*")) {
 
                 if(!servername.contains(bannedservername.replace("*", ""))) {
@@ -156,11 +160,15 @@ public class ConnectionListener {
 
                 if(time == 0) {
                     event.setResult(ServerPreConnectEvent.ServerResult.denied());
+                    event.getPlayer().createConnectionRequest(event.getPreviousServer()).fireAndForget();
                     player.sendMessage(Component.text("§cYou are Permanently banned from this server on this Network!"));
+
+                    return;
                 }
 
                 if(time > System.currentTimeMillis()) {
                     event.setResult(ServerPreConnectEvent.ServerResult.denied());
+                    event.getPlayer().createConnectionRequest(event.getPreviousServer()).fireAndForget();
                     player.sendMessage(Component.text("§cYou are banned from this Server on this Network!"));
                     player.sendMessage(Component.text("§cReason: " + reason));
                     player.sendMessage(Component.text("§cBanned by: " + bannedby));
@@ -177,12 +185,15 @@ public class ConnectionListener {
 
             if(time == 0) {
                 event.setResult(ServerPreConnectEvent.ServerResult.denied());
+                event.getPlayer().createConnectionRequest(event.getPreviousServer()).fireAndForget();
                 player.sendMessage(Component.text("§cYou are Permanently banned from this server on this Network!"));
+
+                return;
             }
 
             if(time > System.currentTimeMillis()) {
                 event.setResult(ServerPreConnectEvent.ServerResult.denied());
-                event.getPlayer().createConnectionRequest(event.getPreviousServer()).connect();
+                event.getPlayer().createConnectionRequest(event.getPreviousServer()).fireAndForget();
                 player.sendMessage(Component.text("§cYou are banned from this Server on this Network!"));
                 player.sendMessage(Component.text("§cReason: " + reason));
                 player.sendMessage(Component.text("§cBanned by: " + bannedby));

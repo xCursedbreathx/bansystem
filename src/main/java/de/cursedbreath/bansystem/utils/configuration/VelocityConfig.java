@@ -118,7 +118,7 @@ public class VelocityConfig {
 
     public String getLobbyName() {
         Toml reader = new Toml().read(configfile);
-        return reader.getString("lobbynamecontains");
+        return reader.getString("Server.lobbynamecontains");
     }
 
 }
