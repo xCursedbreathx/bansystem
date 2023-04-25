@@ -82,9 +82,17 @@ public class CMD_ban implements SimpleCommand {
 
                 if(target != null) {
                     uuid = target.getUniqueId().toString();
+
+                    if(target.hasPermission("bansystem.bypass")) {
+                        sender.sendMessage(Component.text(GlobalVariables.PREFIX + BanSystem.getVelocityConfig().getMessage("banbypass"), NamedTextColor.RED));
+                        return;
+                    }
+
+                    movePlayerToLobby(target);
+
                 }
 
-                if(target.hasPermission("bansystem.bypass")) {
+                if(MySQLFunctions.isProtected(UUID.fromString(uuid))) {
                     sender.sendMessage(Component.text(GlobalVariables.PREFIX + BanSystem.getVelocityConfig().getMessage("banbypass"), NamedTextColor.RED));
                     return;
                 }
@@ -106,7 +114,7 @@ public class CMD_ban implements SimpleCommand {
 
                     invocation.source().sendMessage(Component.text(GlobalVariables.PREFIX + "§cStart banning Player on Server " + servername + ".", NamedTextColor.RED));
 
-                    if(!proxyServer.getAllServers().stream().anyMatch((data) -> data.getServerInfo().getName().equalsIgnoreCase(servername))) {
+                    if(!proxyServer.getAllServers().stream().anyMatch((data) -> data.getServerInfo().getName().equalsIgnoreCase(servername)) && !proxyServer.getAllServers().stream().anyMatch((data) -> data.getServerInfo().getName().contains(servername.replace("*", "")))) {
                         invocation.source().sendMessage(Component.text(GlobalVariables.PREFIX + "§cThe Server " + servername + " does not exist. Please make sure you use the name from the velocity config.", NamedTextColor.RED));
                         return;
                     }
@@ -168,8 +176,6 @@ public class CMD_ban implements SimpleCommand {
                                             .replaceAll("%type%", "global")
 
                     );
-
-                    movePlayerToLobby(target);
 
                     return;
 
@@ -289,7 +295,14 @@ public class CMD_ban implements SimpleCommand {
 
     private void movePlayerToLobby(Player target) {
 
-        proxyServer.getAllServers().stream().anyMatch((data) -> data.getServerInfo().getName().contains("lobby") || data.getServerInfo().getName().contains("Lobby"));
+        proxyServer.getAllServers()
+                .stream()
+                .map(RegisteredServer::getServerInfo)
+                .map(ServerInfo::getName)
+                .filter(s -> s.contains("lobby"))
+                .findFirst()
+                .ifPresent(s -> target.createConnectionRequest(proxyServer.getServer(s).get())
+                        .fireAndForget());
 
     }
 

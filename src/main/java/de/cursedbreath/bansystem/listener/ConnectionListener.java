@@ -56,6 +56,27 @@ public class ConnectionListener {
 
                 }
 
+                if(player.hasPermission("bansystem.bypass")) {
+
+                    if(!MySQLFunctions.isProtected(uuid)) {
+
+                        MySQLFunctions.updateProtectedField(uuid, true);
+
+                    }
+
+                    return;
+                }
+                else
+                {
+
+                    if(MySQLFunctions.isProtected(uuid)) {
+
+                        MySQLFunctions.updateProtectedField(uuid, false);
+
+                    }
+
+                }
+
                 if(!MySQLFunctions.isGlobalBanned(uuid)) {
                     return;
                 }
@@ -111,7 +132,7 @@ public class ConnectionListener {
 
         Player player = event.getPlayer();
 
-        String servername = event.getOriginalServer().getServerInfo().getName();
+        String servername = event.getOriginalServer().getServerInfo().getName().toLowerCase();
 
 
         try {
@@ -124,7 +145,7 @@ public class ConnectionListener {
 
             String reason = banData.getString("sbanreason");
             String bannedby = banData.getString("sbanby");
-            String bannedservername = banData.getString("servername");
+            String bannedservername = banData.getString("servername").toLowerCase();
             long time = banData.getLong("sbanuntil");
 
             if(bannedservername.contains("*")) {

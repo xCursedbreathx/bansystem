@@ -12,7 +12,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.slf4j.Logger;
 
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -33,7 +32,7 @@ public class CMD_unban implements SimpleCommand {
     @Override
     public void execute(Invocation invocation) {
         proxyServer.getScheduler().buildTask(BanSystem.getInstance(), ()->{
-            if(invocation.arguments().length < 2) {
+            if(!(invocation.arguments().length >= 2)) {
                 invocation.source().sendMessage(Component.text(GlobalVariables.PREFIX + "§cUsage: /netunban <player> <global/server> <servername>", NamedTextColor.RED));
                 return;
             }
@@ -50,19 +49,18 @@ public class CMD_unban implements SimpleCommand {
             UUID uuid = MySQLFunctions.getUUID(playername);
 
 
+            if(uuid == null) {
+                invocation.source().sendMessage(Component.text(GlobalVariables.PREFIX + BanSystem.getVelocityConfig().getMessage("playernotfound")));
+                return;
+            }
+
+
             /**
              * Unban Player
              */
             if(invocation.source() instanceof Player player) {
 
                 String unbannedby = player.getUsername();
-
-
-                if(uuid == null) {
-                    invocation.source().sendMessage(Component.text(GlobalVariables.PREFIX + BanSystem.getVelocityConfig().getMessage("playernotfound")));
-                    return;
-                }
-
 
                 if(type.equalsIgnoreCase("server")) {
 
@@ -76,7 +74,7 @@ public class CMD_unban implements SimpleCommand {
 
                     }
 
-                    MySQLFunctions.deleteServerBan(uuid);
+                    MySQLFunctions.deleteServerBan(uuid, servername);
 
                     BanSystem.getVelocityConfig().notifyADMINS(
 
@@ -119,12 +117,6 @@ public class CMD_unban implements SimpleCommand {
             {
                 String unbannedby = "CONSOLE";
 
-                if(uuid == null) {
-                    invocation.source().sendMessage(Component.text(GlobalVariables.PREFIX + BanSystem.getVelocityConfig().getMessage("playernotfound")));
-                    return;
-                }
-
-
                 if(type.equalsIgnoreCase("server")) {
 
                     String servername = invocation.arguments()[2];
@@ -137,7 +129,7 @@ public class CMD_unban implements SimpleCommand {
 
                     }
 
-                    MySQLFunctions.deleteServerBan(uuid);
+                    MySQLFunctions.deleteServerBan(uuid, servername);
 
                     BanSystem.getVelocityConfig().notifyADMINS(
 
@@ -181,6 +173,7 @@ public class CMD_unban implements SimpleCommand {
 
     @Override
     public List<String> suggest(Invocation invocation) {
+
         if(invocation.arguments().length == 1) {
 
             return proxyServer.getAllPlayers()
@@ -197,6 +190,8 @@ public class CMD_unban implements SimpleCommand {
 
         }
 
+        //Not working don´t know why yet.
+
         if(invocation.arguments().length == 3) {
 
             return proxyServer.getAllServers().stream()
@@ -208,6 +203,7 @@ public class CMD_unban implements SimpleCommand {
         }
 
         return Collections.emptyList();
+
     }
 
     @Override
@@ -215,16 +211,4 @@ public class CMD_unban implements SimpleCommand {
         return invocation.source().hasPermission("bansystem.unban");
     }
 
-    /**
-     * Notify all Admins
-     * @param message
-     */
-    private void notifyADMINS(String message) {
-        proxyServer.getAllPlayers()
-                .stream()
-                .filter(player ->
-                        player.hasPermission("bansystem.notify"))
-                .forEach(player ->
-                        player.sendMessage(Component.text(message)));
-    }
 }

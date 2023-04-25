@@ -81,7 +81,7 @@ public class MySQLFunctions {
     /**
      * Returns true if the UUID is already in the Player Data
      * @param uuid
-     * @return
+     * @return boolean
      */
     public static boolean isPlayerInDatabase(UUID uuid) {
 
@@ -126,7 +126,7 @@ public class MySQLFunctions {
      * Returns true if the UUID is in the active_server_bans table
      * @param uuid
      * @param servername
-     * @return
+     * @return boolean
      */
     public static boolean isServerBanned(UUID uuid, String servername) {
 
@@ -137,16 +137,18 @@ public class MySQLFunctions {
 
             try {
 
-                PreparedStatement preparedStatement = checkPlayerExists.prepareStatement("SELECT * FROM active_server_bans WHERE sbanuuid = ?");
+                PreparedStatement preparedStatement = checkPlayerExists.prepareStatement("SELECT * FROM active_server_bans WHERE uuid = ? && servername = ?");
 
                 preparedStatement.setString(1, uuid.toString());
+
+                preparedStatement.setString(2, servername);
 
                 ResultSet resultSet = preparedStatement.executeQuery();
 
                 while (resultSet.next()) {
-                    if(resultSet.getString("SERVERNAME").contains(servername)) {
-                        return true;
-                    }
+
+                    return true;
+
                 }
 
             } catch (SQLException e) {
@@ -170,7 +172,7 @@ public class MySQLFunctions {
     /**
      * Returns true if the UUID is in the active_global_bans table
      * @param uuid
-     * @return
+     * @return boolean
      */
     public static boolean isGlobalBanned(UUID uuid) {
 
@@ -215,7 +217,7 @@ public class MySQLFunctions {
      * Returns true if the Saved Playername is the same as the given Playername
      * @param uuid
      * @param playername
-     * @return
+     * @return boolean
      */
     public static boolean checkPlayerName(UUID uuid, String playername) {
 
@@ -227,16 +229,16 @@ public class MySQLFunctions {
 
             try {
 
-                PreparedStatement preparedStatement = conn.prepareStatement("SELECT * FROM player_data WHERE uuid = ?");
+                PreparedStatement preparedStatement = conn.prepareStatement("SELECT * FROM player_data WHERE uuid = ? && playername = ?");
 
                 preparedStatement.setString(1, uuid.toString());
+
+                preparedStatement.setString(2, playername);
 
                 ResultSet resultSet = preparedStatement.executeQuery();
 
                 while (resultSet.next()) {
-                    if(resultSet.getString("PLAYERNAME").equalsIgnoreCase(playername)) {
-                        return true;
-                    }
+                    return true;
                 }
 
             } catch (SQLException e) {
@@ -254,6 +256,53 @@ public class MySQLFunctions {
     }
 
 
+
+    /**
+     * Returns the Protected Boolean from the Database.
+     * @param uuid UUID of the Player that should be checked.
+     * @return boolean
+     */
+    public static boolean isProtected(UUID uuid) {
+
+        Connection conn = null;
+
+        try {
+
+            conn = BanSystem.getMySQLConnectionPool().getConnection();
+
+            try {
+
+                PreparedStatement preparedStatement = conn.prepareStatement("SELECT * FROM player_data WHERE uuid = ?");
+
+                preparedStatement.setString(1, uuid.toString());
+
+                ResultSet resultSet = preparedStatement.executeQuery();
+
+                while (resultSet.next()) {
+                    return resultSet.getBoolean("protected");
+                }
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } finally {
+                if (conn != null) {
+                    BanSystem.getMySQLConnectionPool().returnConnection(conn);
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return false;
+    }
+
+
+    /**
+     * Returns the Banned Times for the given ID
+     * @param uuid
+     * @param id
+     * @return int
+     */
     public static int getBannedTimesForID(String uuid, String id) {
 
         Connection conn = null;
@@ -542,6 +591,117 @@ public class MySQLFunctions {
 
 
     /**
+     * Updates the PlayerName in the player_data table
+     * @param uuid
+     * @param protectedboolean
+     */
+    public static void updateProtectedField(UUID uuid, boolean protectedboolean) {
+
+        Connection conn = null;
+
+        try {
+
+            conn = BanSystem.getMySQLConnectionPool().getConnection();
+
+            try {
+
+                PreparedStatement updatePlayerData = conn.prepareStatement("UPDATE player_data SET protected = ? WHERE uuid = ?");
+
+                updatePlayerData.setBoolean(1, protectedboolean);
+
+                updatePlayerData.setString(2, uuid.toString());
+
+                updatePlayerData.executeUpdate();
+
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            } finally {
+                if (conn != null) {
+                    BanSystem.getMySQLConnectionPool().returnConnection(conn);
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+
+    /**
+     * Removes a Global ban from active_global_bans where the given UUID is the BANUUID
+     * @param uuid
+     */
+    public static void deleteGlobalBan(UUID uuid) {
+
+        Connection conn = null;
+
+        try {
+
+            conn = BanSystem.getMySQLConnectionPool().getConnection();
+
+            try {
+
+                PreparedStatement deleteGlobalBan = conn.prepareStatement("DELETE FROM active_global_bans WHERE uuid = ?");
+
+                deleteGlobalBan.setString(1, uuid.toString());
+
+                deleteGlobalBan.executeUpdate();
+
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            } finally {
+                if (conn != null) {
+                    BanSystem.getMySQLConnectionPool().returnConnection(conn);
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+
+
+    /**
+     * Removes a Global ban from active_global_bans where the given UUID is the BANUUID
+     * @param uuid
+     */
+    public static void deleteServerBan(UUID uuid, String servername) {
+
+        Connection conn = null;
+
+        try {
+
+            conn = BanSystem.getMySQLConnectionPool().getConnection();
+
+            try {
+
+                PreparedStatement deleteServerBan = conn.prepareStatement("DELETE FROM active_server_bans WHERE uuid = ? && servername = ?");
+
+                deleteServerBan.setString(1, uuid.toString());
+
+                deleteServerBan.setString(2, servername);
+
+                deleteServerBan.executeUpdate();
+
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            } finally {
+                if (conn != null) {
+                    BanSystem.getMySQLConnectionPool().returnConnection(conn);
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+
+    /**
      * Gets the Ban History of the given UUID
      * @param uuid
      */
@@ -691,7 +851,7 @@ public class MySQLFunctions {
     /**
      * Returns a ResultSet with the Global BanData for the given UUID need to check before if the player is banned
      * @param uuid
-     * @return
+     * @return ResultSet or null
      */
     public static ResultSet requestGlobalBanData(UUID uuid) {
 
@@ -734,7 +894,7 @@ public class MySQLFunctions {
     /**
      * Returns a ResultSet with the Server BanData for the given UUID need to check before if the player is banned
      * @param uuid
-     * @return
+     * @return ResultSet or null
      */
     public static ResultSet requestServerBanData(UUID uuid) {
 
@@ -773,79 +933,6 @@ public class MySQLFunctions {
         return null;
 
     }
-
-
-    /**
-     * Removes a Global ban from active_global_bans where the given UUID is the BANUUID
-     * @param uuid
-     */
-    public static void deleteGlobalBan(UUID uuid) {
-
-        Connection conn = null;
-
-        try {
-
-            conn = BanSystem.getMySQLConnectionPool().getConnection();
-
-            try {
-
-                PreparedStatement deleteGlobalBan = conn.prepareStatement("DELETE FROM active_global_bans WHERE uuid = ?");
-
-                deleteGlobalBan.setString(1, uuid.toString());
-
-                deleteGlobalBan.executeUpdate();
-
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            } finally {
-                if (conn != null) {
-                    BanSystem.getMySQLConnectionPool().returnConnection(conn);
-                }
-            }
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-    }
-
-
-
-    /**
-     * Removes a Global ban from active_global_bans where the given UUID is the BANUUID
-     * @param uuid
-     */
-    public static void deleteServerBan(UUID uuid) {
-
-        Connection conn = null;
-
-        try {
-
-            conn = BanSystem.getMySQLConnectionPool().getConnection();
-
-            try {
-
-                PreparedStatement deleteServerBan = conn.prepareStatement("DELETE FROM active_server_bans WHERE sbanuuid = ?");
-
-                deleteServerBan.setString(1, uuid.toString());
-
-                deleteServerBan.executeUpdate();
-
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            } finally {
-                if (conn != null) {
-                    BanSystem.getMySQLConnectionPool().returnConnection(conn);
-                }
-            }
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-    }
-
-
 
 
 }
