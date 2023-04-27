@@ -5,3 +5,6 @@ port = "3306"
 database = "bansystem"
 user = "bansystem"
 pass = "bansystem"
+
+[Server]
+lobbynamecontains = "lobby"

@@ -4,6 +4,7 @@ import com.moandjiezana.toml.Toml;
 import com.velocitypowered.api.proxy.ProxyServer;
 import de.cursedbreath.bansystem.BanSystem;
 import de.cursedbreath.bansystem.utils.mysql.MySQLConnectionPool;
+import net.kyori.adventure.text.Component;
 import org.slf4j.Logger;
 
 import java.io.File;
@@ -19,6 +20,7 @@ public class VelocityConfig {
     private final ProxyServer proxyServer;
 
     static File configPath = new File("plugins/bansystem/");
+
     static File banidfile = new File("plugins/bansystem/banids.toml");
 
     static File messagefile = new File("plugins/bansystem/messages.toml");
@@ -73,36 +75,50 @@ public class VelocityConfig {
          String username = configread.getString("MySQL.user");
          String password = configread.getString("MySQL.pass");
 
-         BanSystem.setMySQLConnectionPool(new MySQLConnectionPool("jdbc:mysql://"+host+":"+port+"/"+database+"", username, password, 40000, logger));
+         BanSystem.setMySQLConnectionPool(new MySQLConnectionPool("jdbc:mariadb:://"+host+":"+port+"/"+database+"", username, password, 20, logger));
     }
 
     public boolean isID(String id) {
         Toml reader = new Toml().read(banidfile);
-        logger.info("ID Table Exists: "+ reader.containsTable(id));
         return reader.containsTable(id);
     }
 
     public String getReason(String id) {
         Toml reader = new Toml().read(banidfile);
         String key = id + ".reason";
-        logger.info("Reason: "+ reader.getString(key));
         return reader.getString(key);
     }
 
     public List<Long> getDurations(String id) {
         Toml reader = new Toml().read(banidfile);
-        logger.info("-> Table Exists: " + reader.containsTable(id));
         Toml ids = reader.getTable(id);
-        logger.info("-> Exists: " + ids.contains("durations"));
         List<Long> values = ids.getList("durations");
-        logger.info(reader.contains(id) + " <- ");
-        logger.info("Durations: "+ values);
         return values;
     }
 
     public String getMessage(String key) {
         Toml reader = new Toml().read(messagefile);
         return reader.getString("Messages."+key).replaceAll("&", "§");
+    }
+
+    /**
+     * Notifies all online admins about a ban
+     * @param message
+     */
+    public void notifyADMINS(String message) {
+
+        proxyServer.getAllPlayers()
+                .stream()
+                .filter(player ->
+                        player.hasPermission("bansystem.notify"))
+                .forEach(player ->
+                        player.sendMessage(Component.text(message)));
+
+    }
+
+    public String getLobbyName() {
+        Toml reader = new Toml().read(configfile);
+        return reader.getString("Server.lobbynamecontains");
     }
 
 }

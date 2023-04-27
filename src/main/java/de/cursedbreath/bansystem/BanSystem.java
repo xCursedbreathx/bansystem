@@ -7,14 +7,12 @@ import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.ProxyServer;
-import de.cursedbreath.bansystem.commands.CMD_ban;
-import de.cursedbreath.bansystem.commands.CMD_history;
-import de.cursedbreath.bansystem.commands.CMD_unban;
+import de.cursedbreath.bansystem.commands.*;
 import de.cursedbreath.bansystem.listener.ConnectionListener;
 import de.cursedbreath.bansystem.utils.UpdateChecker;
 import de.cursedbreath.bansystem.utils.configuration.VelocityConfig;
 import de.cursedbreath.bansystem.utils.mysql.MySQLConnectionPool;
-import de.cursedbreath.bansystem.utils.mysql.MySQLStandardFunctions;
+import de.cursedbreath.bansystem.utils.mysql.MySQLFunctions;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -23,7 +21,7 @@ import java.net.MalformedURLException;
 @Plugin(
         id = "bansystem",
         name = "Bansystem",
-        version = "1.0.7",
+        version = "2.0.0",
         description = "A Simple ID Ban System",
         authors = {"Cursedbreath"}
 )
@@ -58,7 +56,7 @@ public class BanSystem {
 
     /**
      * This method is called when the plugin is enabled.
-     * @param event
+     * @param event The event that is called when the plugin is enabled.
      */
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
@@ -80,7 +78,7 @@ public class BanSystem {
             throw new RuntimeException(e);
         }
 
-        MySQLStandardFunctions.executeScript(this.getClass().getResourceAsStream("/schema.sql"));
+        MySQLFunctions.executeScript(this.getClass().getResourceAsStream("/schema.sql"));
 
         eventManager = proxyServer.getEventManager();
         commandManager = proxyServer.getCommandManager();
@@ -89,7 +87,7 @@ public class BanSystem {
         registerEvents();
 
         try {
-            new UpdateChecker("czeStruK", logger);
+            new UpdateChecker("BanSystem-with-IDs", logger);
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }
@@ -108,7 +106,7 @@ public class BanSystem {
      * @return String
      */
     public static String getVersion() {
-        return "1.0.7";
+        return "2.0.0";
     }
 
     /**
@@ -129,7 +127,7 @@ public class BanSystem {
 
     /**
      * Sets a new MySQLConnectionPool.
-     * @param mySQLConnectionPool
+     * @param mySQLConnectionPool The new MySQLConnectionPool.
      */
     public static void setMySQLConnectionPool(MySQLConnectionPool mySQLConnectionPool) {
         BanSystem.mySQLConnectionPool = mySQLConnectionPool;
@@ -139,9 +137,12 @@ public class BanSystem {
      * Registers all Commands.
      */
     private void registerCommands() {
-        commandManager.register(commandManager.metaBuilder("netban").build(), new CMD_ban(proxyServer, logger));
-        commandManager.register(commandManager.metaBuilder("netunban").build(), new CMD_unban(proxyServer, logger));
+
+        commandManager.register(commandManager.metaBuilder("netban").build(), new CMD_ban(proxyServer));
+        commandManager.register(commandManager.metaBuilder("netunban").build(), new CMD_unban(proxyServer));
         commandManager.register(commandManager.metaBuilder("nethistory").build(), new CMD_history(proxyServer));
+        commandManager.register(commandManager.metaBuilder("netcmdlog").build(), new CMD_logs(proxyServer));
+
     }
 
     /**

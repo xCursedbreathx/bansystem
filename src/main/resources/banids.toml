@@ -28,10 +28,6 @@ durations = [ 86400, 1728000, 2592000, 0 ]
 reason = "Werbung"
 durations = [ 604800, 1209600, 1814400, 2419200 ]
 
-[11]
-reason = "Test"
-duration = 1
-
 [80]
 reason = "Alt-Account"
 durations = [ 0 ]

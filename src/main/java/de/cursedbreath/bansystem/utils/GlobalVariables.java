@@ -4,12 +4,12 @@ import de.cursedbreath.bansystem.BanSystem;
 
 import java.text.Format;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 public class GlobalVariables {
 
     public static String PREFIX = "§7[§6BanSystem§7]§r ";
+
     public static String convertTime(long time){
         Date date = new Date(time);
         Format format = new SimpleDateFormat("HH:mm:ss dd.MM.yyyy");

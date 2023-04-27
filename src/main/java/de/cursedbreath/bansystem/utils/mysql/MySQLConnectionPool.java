@@ -33,21 +33,27 @@ public class MySQLConnectionPool {
         this.logger = logger;
     }
 
-    public synchronized Connection getConnection() throws SQLException, ClassNotFoundException {
+    public synchronized Connection getConnection() throws SQLException {
 
-        Connection conn = null;
-        conn = getConnectionFromPool();
+        try {
+            Connection conn = null;
+            conn = getConnectionFromPool();
 
-        if(conn == null){
-            if (isFull()) {
-                logger.error("MySQL connection pool ist full! Connection could not be established");
-                throw new SQLException("The Connection pool is full.");
+            if(conn == null){
+                if (isFull()) {
+                    logger.error("MySQL connection pool ist full! Connection could not be established");
+                    throw new SQLException("The Connection pool is full.");
+                }
+                conn = createNewConnectionForPool();
             }
-            conn = createNewConnectionForPool();
+
+            conn = makeAvailable(conn);
+            return conn;
+        } catch (ClassNotFoundException e) {
+            logger.error("MySQL connection could not be established: " + e.getMessage());
+            throw new SQLException("The Connection could not be established.");
         }
 
-        conn = makeAvailable(conn);
-        return conn;
     }
 
     private synchronized boolean isFull() {
