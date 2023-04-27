@@ -21,6 +21,10 @@ public class CMD_unban implements SimpleCommand {
 
     private final ProxyServer proxyServer;
 
+    /**
+     * Unban Command Constructor
+     * @param proxyServer ProxyServer to run this async and getting all Player/Server Names.
+     */
     public CMD_unban(ProxyServer proxyServer) {
         this.proxyServer = proxyServer;
     }
@@ -46,7 +50,7 @@ public class CMD_unban implements SimpleCommand {
 
 
             if(uuid == null) {
-                invocation.source().sendMessage(Component.text(GlobalVariables.PREFIX + BanSystem.getVelocityConfig().getMessage("playernotfound")));
+                invocation.source().sendMessage(Component.text(GlobalVariables.PREFIX + BanSystem.getVelocityConfig().getMessage("playernotfound").replaceAll("%player%", playername)));
                 return;
             }
 

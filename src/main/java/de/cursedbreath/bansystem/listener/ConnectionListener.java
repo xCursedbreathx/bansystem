@@ -101,7 +101,7 @@ public class ConnectionListener {
 
                 }
 
-                String reason = banData.getString("banreason");
+                String reason = banData.getString("reason");
                 String bannedby = banData.getString("banby");
                 long time = banData.getLong("banuntil");
 

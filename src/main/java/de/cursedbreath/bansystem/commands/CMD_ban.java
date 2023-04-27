@@ -10,7 +10,6 @@ import de.cursedbreath.bansystem.utils.GlobalVariables;
 import de.cursedbreath.bansystem.utils.mysql.MySQLFunctions;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.slf4j.Logger;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -23,11 +22,12 @@ public class CMD_ban implements SimpleCommand {
 
     private final ProxyServer proxyServer;
 
-    private final Logger logger;
-
-    public CMD_ban(ProxyServer proxyServer, Logger logger) {
+    /**
+     * Ban Command Consturctor
+     * @param proxyServer ProxyServer to get online Player names and server names if needed + running async.
+     */
+    public CMD_ban(ProxyServer proxyServer) {
         this.proxyServer = proxyServer;
-        this.logger = logger;
     }
 
     @Override
@@ -76,7 +76,7 @@ public class CMD_ban implements SimpleCommand {
                 uuid = MySQLFunctions.getUUID(playername).toString();
 
                 if(uuid == null) {
-                    sender.sendMessage(Component.text(GlobalVariables.PREFIX + BanSystem.getVelocityConfig().getMessage("playernotfound"), NamedTextColor.RED));
+                    sender.sendMessage(Component.text(GlobalVariables.PREFIX + BanSystem.getVelocityConfig().getMessage("playernotfound").replaceAll("%player%", playername), NamedTextColor.RED));
                     return;
                 }
 
@@ -152,6 +152,8 @@ public class CMD_ban implements SimpleCommand {
 
                     }
 
+                    //Temporary ban Player from Server.
+
                     time = System.currentTimeMillis() + time;
 
                     if(MySQLFunctions.isServerBanned(UUID.fromString(uuid), servername)) {
@@ -186,8 +188,6 @@ public class CMD_ban implements SimpleCommand {
 
                 if(type.equalsIgnoreCase("global")) {
 
-                    //Permanently ban Player from Network.
-
                     if(MySQLFunctions.isGlobalBanned(UUID.fromString(uuid))) {
                         sender.sendMessage(Component.text(GlobalVariables.PREFIX + "The Player " + playername + " is already global banned. Trying to Disconnect the Player now.", NamedTextColor.RED));
 
@@ -197,6 +197,8 @@ public class CMD_ban implements SimpleCommand {
                     }
 
                     if(time == 0) {
+
+                        //Permanently ban Player from Network.
 
                         MySQLFunctions.newGlobalBan(uuid, reason, bannedby, 0, Integer.valueOf(reasonid));
 
@@ -216,15 +218,27 @@ public class CMD_ban implements SimpleCommand {
 
                         MySQLFunctions.newCommandLog(bannedby, playername, "ban type global");
 
+                        if(proxyServer.getPlayer(playername).isPresent()) {
+
+                            disconnectPlayer(proxyServer.getPlayer(playername).get(), reason, bannedby, time);
+
+                        }
+
                         return;
 
                     }
+
+                    //Temporary ban Player from Network.
 
                     time = System.currentTimeMillis() + time;
 
                     MySQLFunctions.newGlobalBan(uuid, reason, bannedby, time, Integer.valueOf(reasonid));
 
-                    disconnectPlayer(target, reason, bannedby, time);
+                    if(proxyServer.getPlayer(playername).isPresent()) {
+
+                        disconnectPlayer(proxyServer.getPlayer(playername).get(), reason, bannedby, time);
+
+                    }
 
                     BanSystem.getVelocityConfig().notifyADMINS(
 
@@ -286,12 +300,35 @@ public class CMD_ban implements SimpleCommand {
         return Collections.emptyList();
     }
 
+    /**
+     * Checks if the CommandSender has the Permission to execute the Command
+     * @param invocation
+     * @return
+     */
     @Override
     public boolean hasPermission(Invocation invocation) {
         return invocation.source().hasPermission("bansystem.ban");
     }
 
+
+    /**
+     * Disconnects the Player from the Network
+     * @param target the Player to disconnect
+     * @param reason the reason for the disconnect/ban
+     * @param bannedby the Player who banned/disconnected the target
+     * @param time the time the Player is banned
+     */
     private void disconnectPlayer(Player target, String reason, String bannedby, long time) {
+
+        if(time == 0) {
+
+            target.disconnect(Component.text(BanSystem.getVelocityConfig().getMessage("bannedscreen")
+                    .replaceAll("%reason%", reason)
+                    .replaceAll("%by%", bannedby)
+                    .replaceAll("%time%", "PERMANENT")));
+
+            return;
+        }
 
         target.disconnect(Component.text(BanSystem.getVelocityConfig().getMessage("bannedscreen")
                 .replaceAll("%reason%", reason)
@@ -300,6 +337,10 @@ public class CMD_ban implements SimpleCommand {
 
     }
 
+    /**
+     * Moves the Player to the Lobby
+     * @param target the Player to move
+     */
     private void movePlayerToLobby(Player target) {
 
         proxyServer.getAllServers()

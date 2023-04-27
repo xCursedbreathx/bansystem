@@ -15,6 +15,10 @@ public class CMD_logs implements SimpleCommand {
 
     private final ProxyServer proxyServer;
 
+    /**
+     * Logs command constructor
+     * @param proxyServer ProxyServer to run this async.
+     */
     public CMD_logs(ProxyServer proxyServer) {
         this.proxyServer = proxyServer;
     }
@@ -49,6 +53,12 @@ public class CMD_logs implements SimpleCommand {
                 }
 
                 MySQLFunctions.getLogs(player, limit);
+
+            }
+            else
+            {
+
+                invocation.source().sendMessage(Component.text(BanSystem.getVelocityConfig().getMessage("onlyplayercommand")));
 
             }
 

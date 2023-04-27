@@ -138,7 +138,7 @@ public class BanSystem {
      */
     private void registerCommands() {
 
-        commandManager.register(commandManager.metaBuilder("netban").build(), new CMD_ban(proxyServer, logger));
+        commandManager.register(commandManager.metaBuilder("netban").build(), new CMD_ban(proxyServer));
         commandManager.register(commandManager.metaBuilder("netunban").build(), new CMD_unban(proxyServer));
         commandManager.register(commandManager.metaBuilder("nethistory").build(), new CMD_history(proxyServer));
         commandManager.register(commandManager.metaBuilder("netcmdlog").build(), new CMD_logs(proxyServer));

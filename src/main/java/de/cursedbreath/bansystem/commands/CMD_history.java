@@ -15,6 +15,10 @@ public class CMD_history implements SimpleCommand {
 
     private final ProxyServer proxyServer;
 
+    /**
+     * History command constructor
+     * @param proxyServer ProxyServer to run this async.
+     */
     public CMD_history(ProxyServer proxyServer) {
         this.proxyServer = proxyServer;
     }
@@ -53,7 +57,7 @@ public class CMD_history implements SimpleCommand {
             else
             {
 
-                invocation.source().sendMessage(Component.text(GlobalVariables.PREFIX + "§7History is Currently only visible by Players!", NamedTextColor.RED));
+                invocation.source().sendMessage(Component.text(BanSystem.getVelocityConfig().getMessage("onlyplayercommand")));
 
             }
 
