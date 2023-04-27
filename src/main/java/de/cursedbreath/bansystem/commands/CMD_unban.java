@@ -10,7 +10,6 @@ import de.cursedbreath.bansystem.utils.GlobalVariables;
 import de.cursedbreath.bansystem.utils.mysql.MySQLFunctions;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.slf4j.Logger;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -22,11 +21,8 @@ public class CMD_unban implements SimpleCommand {
 
     private final ProxyServer proxyServer;
 
-    private final Logger logger;
-
-    public CMD_unban(ProxyServer proxyServer, Logger logger) {
+    public CMD_unban(ProxyServer proxyServer) {
         this.proxyServer = proxyServer;
-        this.logger = logger;
     }
 
     @Override
@@ -58,9 +54,9 @@ public class CMD_unban implements SimpleCommand {
             /**
              * Unban Player
              */
-            if(invocation.source() instanceof Player player) {
+            if(invocation.source() instanceof Player sender) {
 
-                String unbannedby = player.getUsername();
+                String unbannedby = sender.getUsername();
 
                 if(type.equalsIgnoreCase("server")) {
 
@@ -83,8 +79,11 @@ public class CMD_unban implements SimpleCommand {
                                     BanSystem.getVelocityConfig().getMessage("unbannotify")
                                             .replaceAll("%player%", playername)
                                             .replaceAll("%by%", unbannedby)
+                                            .replaceAll("%type%", "server")
 
                     );
+
+                    MySQLFunctions.newCommandLog(sender.getUsername(), playername, "unban type server");
 
                 }
 
@@ -107,8 +106,11 @@ public class CMD_unban implements SimpleCommand {
                                     BanSystem.getVelocityConfig().getMessage("unbannotify")
                                             .replaceAll("%player%", playername)
                                             .replaceAll("%by%", unbannedby)
+                                            .replaceAll("%type%", "global")
 
                     );
+
+                    MySQLFunctions.newCommandLog(sender.getUsername(), playername, "unban type global");
 
                 }
 
@@ -138,8 +140,11 @@ public class CMD_unban implements SimpleCommand {
                                     BanSystem.getVelocityConfig().getMessage("unbannotify")
                                             .replaceAll("%player%", playername)
                                             .replaceAll("%by%", unbannedby)
+                                            .replaceAll("%type%", "server")
 
                     );
+
+                    MySQLFunctions.newCommandLog("CONSOLE", playername, "unban type server");
 
                 }
 
@@ -162,8 +167,11 @@ public class CMD_unban implements SimpleCommand {
                             BanSystem.getVelocityConfig().getMessage("unbannotify")
                                     .replaceAll("%player%", playername)
                                     .replaceAll("%by%", unbannedby)
+                                    .replaceAll("%type%", "global")
 
                     );
+
+                    MySQLFunctions.newCommandLog("CONSOLE", playername, "unban type global");
 
                 }
 
@@ -197,7 +205,7 @@ public class CMD_unban implements SimpleCommand {
             return proxyServer.getAllServers().stream()
                     .map(RegisteredServer::getServerInfo)
                     .map(ServerInfo::getName)
-                    .filter(s -> s.startsWith(invocation.arguments()[3]))
+                    .filter(s -> s.startsWith(invocation.arguments()[2]))
                     .collect(Collectors.toList());
 
         }

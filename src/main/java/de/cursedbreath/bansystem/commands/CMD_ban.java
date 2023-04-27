@@ -61,7 +61,7 @@ public class CMD_ban implements SimpleCommand {
                 String bannedby = sender.getUsername();
 
                 if(!sender.hasPermission("bansystem." + reasonid)) {
-                    sender.sendMessage(Component.text(GlobalVariables.PREFIX + BanSystem.getVelocityConfig().getMessage("notenounghpermissions"), NamedTextColor.RED));
+                    sender.sendMessage(Component.text(GlobalVariables.PREFIX + "§cYou don´t have the Permission to ban for this Reason!"));
                     return;
                 }
 
@@ -141,11 +141,12 @@ public class CMD_ban implements SimpleCommand {
                                         .replaceAll("%player%", playername)
                                         .replaceAll("%reason%", reason)
                                         .replaceAll("%by%", bannedby)
-                                        .replaceAll("%time%", GlobalVariables.convertTime(time))
-                                        .replaceAll("%bannedby%", bannedby)
-                                        .replaceAll("%type%", "global")
+                                        .replaceAll("%time%", "PERMANENT")
+                                        .replaceAll("%type%", "server")
 
                         );
+
+                        MySQLFunctions.newCommandLog(bannedby, playername, "ban type server");
 
                         return;
 
@@ -173,9 +174,11 @@ public class CMD_ban implements SimpleCommand {
                                             .replaceAll("%by%", bannedby)
                                             .replaceAll("%time%", GlobalVariables.convertTime(time))
                                             .replaceAll("%bannedby%", bannedby)
-                                            .replaceAll("%type%", "global")
+                                            .replaceAll("%type%", "server")
 
                     );
+
+                    MySQLFunctions.newCommandLog(bannedby, playername, "ban type server");
 
                     return;
 
@@ -205,11 +208,13 @@ public class CMD_ban implements SimpleCommand {
                                                 .replaceAll("%player%", playername)
                                                 .replaceAll("%reason%", reason)
                                                 .replaceAll("%by%", bannedby)
-                                                .replaceAll("%time%", GlobalVariables.convertTime(time))
+                                                .replaceAll("%time%", "PERMANENT")
                                                 .replaceAll("%bannedby%", bannedby)
                                                 .replaceAll("%type%", "global")
 
                         );
+
+                        MySQLFunctions.newCommandLog(bannedby, playername, "ban type global");
 
                         return;
 
@@ -234,6 +239,8 @@ public class CMD_ban implements SimpleCommand {
                                             .replaceAll("%type%", "global")
 
                     );
+
+                    MySQLFunctions.newCommandLog(bannedby, playername, "ban type global");
 
 
                 }

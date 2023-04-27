@@ -7,9 +7,7 @@ import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.ProxyServer;
-import de.cursedbreath.bansystem.commands.CMD_ban;
-import de.cursedbreath.bansystem.commands.CMD_history;
-import de.cursedbreath.bansystem.commands.CMD_unban;
+import de.cursedbreath.bansystem.commands.*;
 import de.cursedbreath.bansystem.listener.ConnectionListener;
 import de.cursedbreath.bansystem.utils.UpdateChecker;
 import de.cursedbreath.bansystem.utils.configuration.VelocityConfig;
@@ -139,9 +137,12 @@ public class BanSystem {
      * Registers all Commands.
      */
     private void registerCommands() {
+
         commandManager.register(commandManager.metaBuilder("netban").build(), new CMD_ban(proxyServer, logger));
-        commandManager.register(commandManager.metaBuilder("netunban").build(), new CMD_unban(proxyServer, logger));
+        commandManager.register(commandManager.metaBuilder("netunban").build(), new CMD_unban(proxyServer));
         commandManager.register(commandManager.metaBuilder("nethistory").build(), new CMD_history(proxyServer));
+        commandManager.register(commandManager.metaBuilder("netcmdlog").build(), new CMD_logs(proxyServer));
+
     }
 
     /**

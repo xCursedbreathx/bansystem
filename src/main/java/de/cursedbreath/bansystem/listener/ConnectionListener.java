@@ -45,9 +45,16 @@ public class ConnectionListener {
             try {
                 if(!MySQLFunctions.isPlayerInDatabase(uuid)) {
 
-                    MySQLFunctions.createNewPlayer(uuid, name);
+                    if(player.hasPermission("bansystem.bypass")) {
 
+                        MySQLFunctions.createNewPlayer(uuid, name, true);
+                        return;
+
+                    }
+
+                    MySQLFunctions.createNewPlayer(uuid, name, false);
                     return;
+
                 }
 
                 if(!MySQLFunctions.checkPlayerName(uuid, name)) {
@@ -65,6 +72,7 @@ public class ConnectionListener {
                     }
 
                     return;
+
                 }
                 else
                 {

@@ -47,6 +47,8 @@ public class CMD_history implements SimpleCommand {
 
                 MySQLFunctions.getHistory(player, uuid.toString());
 
+                MySQLFunctions.newCommandLog(player.getUsername(), playername, "history");
+
             }
             else
             {

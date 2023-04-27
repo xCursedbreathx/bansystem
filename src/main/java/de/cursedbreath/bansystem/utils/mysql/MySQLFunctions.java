@@ -349,7 +349,7 @@ public class MySQLFunctions {
      * @param uuid
      * @param playername
      */
-    public static void createNewPlayer(UUID uuid, String playername) {
+    public static void createNewPlayer(UUID uuid, String playername, boolean hasBypassPermission) {
 
         Connection conn = null;
 
@@ -359,11 +359,13 @@ public class MySQLFunctions {
 
             try {
 
-                PreparedStatement insertPlayer = conn.prepareStatement("INSERT INTO player_data (uuid, playername) VALUES (?, ?)");
+                PreparedStatement insertPlayer = conn.prepareStatement("INSERT INTO player_data (uuid, playername, protected) VALUES (?, ?, ?)");
 
                 insertPlayer.setString(1, uuid.toString());
 
                 insertPlayer.setString(2, playername);
+
+                insertPlayer.setBoolean(3, hasBypassPermission);
 
                 insertPlayer.executeUpdate();
 
@@ -399,7 +401,7 @@ public class MySQLFunctions {
 
             try {
 
-                PreparedStatement insertGlobalBan = conn.prepareStatement("INSERT INTO active_global_bans (uuid, banreason, banby, banuntil, banforid) VALUES (?, ?, ?, ?, ?)");
+                PreparedStatement insertGlobalBan = conn.prepareStatement("INSERT INTO active_global_bans (uuid, reason, banby, banuntil, banforid) VALUES (?, ?, ?, ?, ?)");
 
                 insertGlobalBan.setString(1, uuid);
 
@@ -536,6 +538,8 @@ public class MySQLFunctions {
                 insertCommandLog.setString(2, targetname);
 
                 insertCommandLog.setString(3, command);
+
+                insertCommandLog.executeUpdate();
 
             } catch (SQLException e) {
                 throw new RuntimeException(e);
@@ -717,7 +721,7 @@ public class MySQLFunctions {
 
                 int i = 1;
 
-                PreparedStatement getHistory = conn.prepareStatement("SELECT * FROM punishment_history WHERE punishuuid = ? LIMIT 10");
+                PreparedStatement getHistory = conn.prepareStatement("SELECT * FROM punishment_history WHERE punishuuid = ? ORDER BY punishid DESC LIMIT 10");
 
                 getHistory.setString(1, uuid);
 
@@ -763,6 +767,64 @@ public class MySQLFunctions {
         }
 
     }
+
+
+    /**
+     * Gets the x Last logs of the given number
+     * @param limit the number how many logs should be shown.
+     */
+    public static void getLogs(Player player, int limit) {
+
+        Connection conn = null;
+
+        try {
+
+            conn = BanSystem.getMySQLConnectionPool().getConnection();
+
+            try {
+
+                int i = 1;
+
+                PreparedStatement getHistory = conn.prepareStatement("SELECT * FROM command_logs ORDER BY logid DESC LIMIT ?");
+
+                getHistory.setInt(1, limit);
+
+                ResultSet resultSet = getHistory.executeQuery();
+
+                player.sendMessage(Component.text("§cLAST "+ limit +" COMMAND LOGS"));
+
+                while (resultSet.next()) {
+
+                    player.sendMessage(Component.text(" "));
+
+                    player.sendMessage(Component.text("§cPerformed By: §a" + resultSet.getString("perfby")));
+
+                    player.sendMessage(Component.text("§cTarget: §a" + resultSet.getString("perfto")));
+
+                    player.sendMessage(Component.text("§cCommand: §a" + resultSet.getString("command")));
+
+                    player.sendMessage(Component.text("§cTimestamp: §a" + resultSet.getString("timestamp")));
+
+                    player.sendMessage(Component.text(" "));
+
+                }
+
+                player.sendMessage(Component.text("§cEND OF LAST "+ limit +" COMMAND LOGS"));
+
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            } finally {
+                if (conn != null) {
+                    BanSystem.getMySQLConnectionPool().returnConnection(conn);
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
 
     /**
      * Gets the UUID for the given Player name when already in Database
